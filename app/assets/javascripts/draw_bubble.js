@@ -23,7 +23,7 @@ class DrawBubble {
             this.drag = false;
             if (Math.abs(this.rect.w) > this.minDistance && Math.abs(this.rect.h) > this.minDistance) {
                 const bubble = new Bubble(this.rect.startX, this.rect.startY, this.rect.w, this.rect.h, this.canvas);
-                const text = new TextBubble({ text: "...", font: 'CCWildWords', font_size: 15, bubble: bubble });
+                const text = new TextBubble({ text: "...", font: 'CCWildWords', font_size: 11, bubble: bubble });
                 bubble.set_object_text(text);
                 this.canvas.add_object(bubble);
                 this.canvas.add_object(text);

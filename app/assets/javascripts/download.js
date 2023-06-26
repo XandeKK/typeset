@@ -6,7 +6,6 @@ class Download {
     }
 
     download() {
-        // change this
         const canvas_original = new Canvas("canvas_original", main.img.width, main.img.height);
         const image = new ImageCanvas(main.current_msg, canvas_original);
         const objects = this.canvas.get_objects(main.img.height / this.canvas.height, canvas_original);

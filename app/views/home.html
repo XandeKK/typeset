@@ -13,6 +13,10 @@
 <body class="h-screen">
     <div class="flex h-full gap-2">
         <div class="basis-3/12 bg-zinc-200 h-full overflow-y-auto overflow-x-hidden p-2">
+            <div class="mb-2 select-none">
+                <label for="hide_box" class="mb-2 text-sm font-medium text-gray-900 dark:text-white">Hide boxs</label>
+                <input type="checkbox" name="hide_box" id="hide_box">
+            </div>
             <div id="selected_bubble_canvas"></div>
             <div id="selected_bubble"></div>
             <ul id="texts" class="bg-white w-full select-none h-40 overflow-auto"></ul>
@@ -188,6 +192,12 @@
     <script src="/javascripts/draw_bubble.js"></script>
     <script src="/javascripts/download.js"></script>
     <script src="/javascripts/texts.js"></script>
+    <script type="text/javascript">
+        document.getElementById('hide_box').addEventListener('change', (evt)=> {
+            window.hide_box = evt.target.checked;
+            main.canvas.draw();
+        });
+    </script>
 </body>
 
 </html>

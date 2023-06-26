@@ -55,6 +55,7 @@ class IA:
 
     def predict(self, files):
         for file in files:
+            print(f'predict file: {file}')
             img = cv2.imread(file)
 
             results = self.model(img)

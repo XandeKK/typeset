@@ -13,6 +13,9 @@ class TextBubble {
         this.bold = objects.bold || false;
         this.italic = objects.italic || false;
         this.color = objects.color || "#000000";
+        this.alignment_text = objects.alignment_text || 'center';
+        this.letter_spacing = objects.letter_spacing || 0;
+        this.degrees = objects.letter_spacing || 0;
 
         this.margin = objects.margin || {
             top: 0,
@@ -25,7 +28,15 @@ class TextBubble {
     draw() {
         this.bubble.canvas.context.font = `${this.get_bold()} ${this.get_italic()} ${this.font_size}px ${this.font}`;
 
-        this.bubble.canvas.context.textAlign = 'center';
+        this.bubble.canvas.context.save();
+
+        // rotate text
+        this.bubble.canvas.context.translate(this.rect.x1  + this.bubble.width / 2, this.rect.y1  + this.bubble.height / 2);
+        this.bubble.canvas.context.rotate(this.degrees * Math.PI / 180);
+        this.bubble.canvas.context.translate(-(this.rect.x1  + this.bubble.width / 2), -(this.rect.y1  + this.bubble.height / 2));
+
+        this.bubble.canvas.context.textAlign = this.alignment_text;
+        this.bubble.canvas.context.letterSpacing = `${this.letter_spacing}px`;
         let maxWidth = this.rect.x2 - this.rect.x1 - this.margin.left - this.margin.right;
         const textMeasured = this.bubble.canvas.context.measureText('M');
         let lineHeight = textMeasured.fontBoundingBoxAscent + textMeasured.fontBoundingBoxDescent;
@@ -49,19 +60,27 @@ class TextBubble {
         }
         let totalHeight = lines.length * lineHeight;
         let y = this.rect.y1 + this.margin.top + (this.rect.y2 - this.rect.y1 - totalHeight - this.margin.top - this.margin.bottom) / 2 + lineHeight;
+        let x = 0;
+        if (this.alignment_text == 'left' || this.alignment_text == 'start') {
+            x = this.rect.x1 + this.margin.left;
+        } else {
+            x = this.rect.x1 + this.margin.left + (this.rect.x2 - this.rect.x1 - this.margin.left - this.margin.right) / 2;
+        }
         for (let i = 0; i < lines.length; i++) {
             if (this.outline.on) { // add outline
                 this.bubble.canvas.context.miterLimit = 2;
                 this.bubble.canvas.context.lineJoin = 'circle';
                 this.bubble.canvas.context.strokeStyle = this.outline.color;
                 this.bubble.canvas.context.lineWidth = this.outline.size;
-                this.bubble.canvas.context.strokeText(lines[i], this.rect.x1 + this.margin.left + (this.rect.x2 - this.rect.x1 - this.margin.left - this.margin.right) / 2, y);
+                this.bubble.canvas.context.strokeText(lines[i], x, y);
             }
             this.bubble.canvas.context.fillStyle = this.color;
-            this.bubble.canvas.context.fillText(lines[i], this.rect.x1 + this.margin.left + (this.rect.x2 - this.rect.x1 - this.margin.left - this.margin.right) / 2, y);
+            this.bubble.canvas.context.fillText(lines[i], x, y);
 
             y += lineHeight;
         }
+
+        this.bubble.canvas.context.restore();
     }
 
     set_text(text) {
@@ -138,18 +157,40 @@ class TextBubble {
         this.bubble.canvas.draw();
     }
 
+    set_alignment_text(text) {
+        this.alignment_text = text;
+        this.bubble.canvas.draw();
+    }
+
+    set_letter_spacing(value) {
+        this.letter_spacing = parseFloat(value);
+        this.bubble.canvas.draw();
+    }
+
+    set_degrees(degrees) {
+        this.degrees = degrees;
+        this.bubble.canvas.draw();
+    }
+
     dup(percent, canvas) {
         const bubble = new Bubble(this.rect.x1 * percent, this.rect.y1 * percent,
-            (this.rect.x2 - this.rect.x1) * percent, (this.rect.y2 - this.rect.y1) * percent, canvas, false); 
+            (this.rect.x2 - this.rect.x1) * percent, (this.rect.y2 - this.rect.y1) * percent, canvas, false);
 
         return new TextBubble({
-            text: this.text_original, font: this.font,
-            font_size: this.font_size * percent, bubble: bubble,
-            outline: {...this.outline, size: this.outline.size * percent}, bold: this.bold,
-            color: this.color, margin: {top: this.margin.top * percent, top: this.margin.top * percent,
-            bottom: this.margin.bottom * percent, left: this.margin.left * percent,
-            right: this.margin.right * percent
-        }
+            text: this.text_original,
+            font: this.font,
+            font_size: this.font_size * percent,
+            bubble: bubble,
+            outline: { ...this.outline, size: this.outline.size * percent },
+            bold: this.bold,
+            color: this.color,
+            margin: {
+                top: this.margin.top * percent,
+                top: this.margin.top * percent,
+                bottom: this.margin.bottom * percent,
+                left: this.margin.left * percent,
+                right: this.margin.right * percent
+            }
         });
     }
 
@@ -221,7 +262,7 @@ class TextBubble {
             if (inputValue.length > 0) {
                 const values = JSON.parse(localStorage.getItem('fonts'));
                 const filteredValues = values.filter(function(value) {
-                    return value.toLowerCase().startsWith(inputValue);
+                    return value.toLowerCase().includes(inputValue);
                 });
 
                 fontAutocompleteResults.classList.remove('hidden');
@@ -243,11 +284,18 @@ class TextBubble {
             }
         });
 
-        fontsTextInput.addEventListener('keyup', (evt) => {
+        fontsTextInput.addEventListener('keydown', (evt) => {
             if (evt.key == 'Enter') {
+                const inputValue = evt.target.value.toLowerCase();
+                const values = JSON.parse(localStorage.getItem('fonts'));
+                const firstValue = values.filter(function(value) {
+                    return value.toLowerCase().includes(inputValue);
+                })[0].replace(/\..*/, "");
+
+                this.set_font(firstValue);
+                evt.target.value = firstValue;
                 fontAutocompleteResults.classList.add('hidden');
             }
-            this.set_font(evt.target.value);
         });
 
         const fontsSizeInput = document.createElement('input');
@@ -377,6 +425,101 @@ class TextBubble {
 
         container.appendChild(grid2);
 
+        const grid3 = document.createElement('div');
+        grid3.className = 'flex gap-4 mb-2';
+
+        const leftDiv = document.createElement('div');
+
+        const leftLabel = document.createElement('label');
+        leftLabel.className = 'text-sm font-medium text-gray-900 dark:text-white mr-2';
+        leftLabel.setAttribute('for', 'left');
+        leftLabel.textContent = 'left';
+
+        const leftInput = document.createElement('input');
+        leftInput.className = 'w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600';
+        leftInput.type = 'radio';
+        leftInput.id = 'left';
+        leftInput.name = 'align';
+        leftInput.checked = this.alignment_text == 'left' || this.alignment_text == 'start';
+
+        leftInput.addEventListener('change', (evt) => {
+            this.set_alignment_text('left');
+        });
+
+        leftDiv.appendChild(leftLabel);
+        leftDiv.appendChild(leftInput);
+
+        const centerDiv = document.createElement('div');
+
+        const centerLabel = document.createElement('label');
+        centerLabel.className = 'text-sm font-medium text-gray-900 dark:text-white mr-2';
+        centerLabel.setAttribute('for', 'center');
+        centerLabel.textContent = 'center';
+
+        const centerInput = document.createElement('input');
+        centerInput.className = 'w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600';
+        centerInput.type = 'radio';
+        centerInput.id = 'center';
+        centerInput.name = 'align';
+        centerInput.checked = this.alignment_text == 'center';
+
+        centerInput.addEventListener('change', (evt) => {
+            this.set_alignment_text('center');
+        });
+
+        centerDiv.appendChild(centerLabel);
+        centerDiv.appendChild(centerInput);
+
+        grid3.appendChild(leftDiv);
+        grid3.appendChild(centerDiv);
+
+        container.appendChild(grid3);
+
+        const letterSpacingDiv = document.createElement('div');
+        letterSpacingDiv.className = 'flex items-center mb-2';
+
+        const letterSpacingLabel = document.createElement('label');
+        letterSpacingLabel.className = 'mr-2 text-sm font-medium text-gray-900 dark:text-white';
+        letterSpacingLabel.setAttribute('for', 'letter-spacing-text');
+        letterSpacingLabel.textContent = 'Letter Spacing';
+
+        const letterSpacingInput = document.createElement('input');
+        letterSpacingInput.className = 'w-14 p-1.5 ml-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500';
+        letterSpacingInput.type = 'number';
+        letterSpacingInput.setAttribute('step', '0.1');
+        letterSpacingInput.value = this.letter_spacing;
+
+        letterSpacingDiv.appendChild(letterSpacingLabel);
+        letterSpacingDiv.appendChild(letterSpacingInput);
+
+        container.appendChild(letterSpacingDiv);
+
+        letterSpacingInput.addEventListener('change', (evt) => {
+            this.set_letter_spacing(evt.target.value);
+        });
+
+        const degreesDiv = document.createElement('div');
+        degreesDiv.className = 'flex items-center mb-2';
+
+        const degreesLabel = document.createElement('label');
+        degreesLabel.className = 'mr-2 text-sm font-medium text-gray-900 dark:text-white';
+        degreesLabel.setAttribute('for', 'degrees');
+        degreesLabel.textContent = 'Degrees';
+
+        const degreesInput = document.createElement('input');
+        degreesInput.className = 'w-14 p-1.5 ml-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500';
+        degreesInput.type = 'number';
+        degreesInput.value = this.degrees;
+
+        degreesDiv.appendChild(degreesLabel);
+        degreesDiv.appendChild(degreesInput);
+
+        container.appendChild(degreesDiv);
+
+        degreesInput.addEventListener('change', (evt) => {
+            this.set_degrees(evt.target.value);
+        });
+
         const textareaDiv = document.createElement('div');
         textareaDiv.className = 'mb-2';
 
@@ -387,7 +530,6 @@ class TextBubble {
 
         const textareaInput = document.createElement('textarea');
         textareaInput.value = this.text_original;
-        textareaInput.setAttribute('id', 'text');
         textareaInput.setAttribute('rows', '4');
         textareaInput.setAttribute('placeholder', 'Type here');
         textareaInput.setAttribute('id', 'textareaInput');
