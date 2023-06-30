@@ -23,6 +23,17 @@ class TextBubble {
             left: 0,
             right: 0
         }
+
+        // defective idea
+        // this.hyphenation = createHyphenator(hyphenationPatternsPt, {html: false, hyphenChar: "-", minWordLength: 2});
+        // this.form = 'Normal';
+        // this.forms = {
+        //     'Normal': () => this.text_original,
+        //     'Square': (width_rect, width_letter) => this.formatText(width_rect, width_letter, this.text_original),
+        //     'TrapezoidBigger': (width_rect, width_letter) => this.formatTextTrapezoid(width_rect, width_letter, this.text_original, 5, 1),
+        //     'TrapezoidMinor': (width_rect, width_letter) => this.formatTextTrapezoidMinor(width_rect, width_letter, this.text_original, 10, 1),
+        //     'Barrel': (width_rect, width_letter) => this.formatTextBarrel(width_rect, width_letter, this.text_original, 12, 40, 1)
+        // };
     }
 
     draw() {
@@ -172,6 +183,11 @@ class TextBubble {
         this.bubble.canvas.draw();
     }
 
+    set_form(form) {
+        this.form = form;
+        this.bubble.canvas.draw();
+    }
+
     dup(percent, canvas) {
         const bubble = new Bubble(this.rect.x1 * percent, this.rect.y1 * percent,
             (this.rect.x2 - this.rect.x1) * percent, (this.rect.y2 - this.rect.y1) * percent, canvas, false);
@@ -183,6 +199,7 @@ class TextBubble {
             bubble: bubble,
             outline: { ...this.outline, size: this.outline.size * percent },
             bold: this.bold,
+            italic: this.italic,
             color: this.color,
             margin: {
                 top: this.margin.top * percent,
@@ -275,7 +292,7 @@ class TextBubble {
                         fontsTextInput.value = this.textContent;
                         fontAutocompleteResults.innerHTML = '';
                         fontAutocompleteResults.classList.add('hidden');
-                        fontsTextInput.dispatchEvent(new Event("keyup"));
+                        fontsTextInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
                     });
                     fontAutocompleteResults.appendChild(result);
                 });
@@ -391,7 +408,7 @@ class TextBubble {
         boldInput.className = 'w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600';
         boldInput.type = 'checkbox';
         boldInput.id = 'bold';
-        boldInput.value = this.bold;
+        boldInput.checked = this.bold;
 
         boldInput.addEventListener('change', (evt) => {
             this.set_bold(evt.target.checked);
@@ -411,7 +428,7 @@ class TextBubble {
         italicInput.className = 'w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600';
         italicInput.type = 'checkbox';
         italicInput.id = 'italic';
-        italicInput.value = this.italic;
+        italicInput.checked = this.italic;
 
         italicInput.addEventListener('change', (evt) => {
             this.set_italic(evt.target.checked);
@@ -545,4 +562,231 @@ class TextBubble {
 
         container.appendChild(textareaDiv);
     }
+
+    // defective idea
+    // formatText(width_rect, width_letter, text) {
+    //     const horizontal = Math.floor(width_rect / width_letter);
+    //     text = text.replaceAll('-', '|');
+    //     text = this.hyphenation(text);
+    //     let texts = text.split(' ').map(t => t.split('-'));
+    //     let result = [];
+    //     let temp_text = '';
+
+    //     for (var i = 0; i < texts.length; i++) {
+    //         if (texts[i].length === 1) {
+    //             if (temp_text.length + texts[i].length > horizontal) {
+    //                 result.push(temp_text.trim());
+    //                 temp_text = '';
+    //             }
+
+    //             temp_text += texts[i] + ' ';
+    //         } else {
+    //             for (var j = 0; j < texts[i].length; j++) {
+    //                 if (temp_text.length + texts[i][j].length > horizontal && j <  texts[i].length && j != 0) {
+    //                     result.push(temp_text.trim() + '-');
+    //                     temp_text = '';
+    //                 }
+
+    //                 if (temp_text.length + texts[i][j].length > horizontal) {
+    //                     result.push(temp_text.trim());
+    //                     temp_text = '';
+    //                 }
+
+    //                 temp_text += texts[i][j];
+    //             }
+    //             temp_text += ' ';
+    //         }
+    //     }
+
+    //     result.push(temp_text.trim());
+
+    //     result = result.join('\n').replaceAll('|', '-');
+
+    //     return result;
+    // }
+
+    // formatTextTrapezoid(width_rect, width_letter, text, min_width, line_decrement) {
+    //     const horizontal = Math.floor(width_rect / width_letter);
+    //     text = text.replaceAll('-', '|');
+    //     text = this.hyphenation(text);
+    //     let texts = text.split(' ').map(t => t.split('-'));
+    //     let result = [];
+    //     let temp_text = '';
+    //     let line_length = horizontal;
+
+    //     for (var i = 0; i < texts.length; i++) {
+    //         if (texts[i].length === 1) {
+    //             if (temp_text.length + texts[i].length > line_length) {
+    //                 result.push(temp_text.trim());
+    //                 temp_text = '';
+    //                 line_length -= line_decrement;
+    //                 if (line_length < min_width) {
+    //                     line_length = min_width;
+    //                 }
+    //             }
+
+    //             temp_text += texts[i] + ' ';
+    //         } else {
+    //             for (var j = 0; j < texts[i].length; j++) {
+    //                 if (temp_text.length + texts[i][j].length > line_length && j <  texts[i].length && j != 0) {
+    //                     result.push(temp_text.trim() + '-');
+    //                     temp_text = '';
+    //                     line_length -= line_decrement;
+    //                     if (line_length < min_width) {
+    //                         line_length = min_width;
+    //                     }
+    //                 }
+
+    //                 if (temp_text.length + texts[i][j].length > line_length) {
+    //                     result.push(temp_text.trim());
+    //                     temp_text = '';
+    //                     line_length -= line_decrement;
+    //                     if (line_length < min_width) {
+    //                         line_length = min_width;
+    //                     }
+    //                 }
+
+    //                 temp_text += texts[i][j];
+    //             }
+    //             temp_text += ' ';
+    //         }
+    //     }
+
+    //     result.push(temp_text.trim());
+
+    //     result = result.join('\n').replaceAll('|', '-');
+
+    //     return result;
+    // }
+
+    // formatTextTrapezoidMinor(width_rect, width_letter, text, min_width, line_increment) {
+    //     const horizontal = Math.floor(width_rect / width_letter);
+    //     text = text.replaceAll('-', '|');
+    //     text = this.hyphenation(text);
+    //     let texts = text.split(' ').map(t => t.split('-'));
+    //     let result = [];
+    //     let temp_text = '';
+    //     let line_length = min_width;
+
+    //     for (var i = 0; i < texts.length; i++) {
+    //         if (texts[i].length === 1) {
+    //             if (temp_text.length + texts[i].length > line_length) {
+    //                 result.push(temp_text.trim());
+    //                 temp_text = '';
+    //                 line_length += line_increment;
+    //                 if (line_length > horizontal) {
+    //                     line_length = horizontal;
+    //                 }
+    //             }
+
+    //             temp_text += texts[i] + ' ';
+    //         } else {
+    //             for (var j = 0; j < texts[i].length; j++) {
+    //                 if (temp_text.length + texts[i][j].length > line_length && j <  texts[i].length && j != 0) {
+    //                     result.push(temp_text.trim() + '-');
+    //                     temp_text = '';
+    //                     line_length += line_increment;
+    //                     if (line_length > horizontal) {
+    //                         line_length = horizontal;
+    //                     }
+    //                 }
+
+    //                 if (temp_text.length + texts[i][j].length > line_length) {
+    //                     result.push(temp_text.trim());
+    //                     temp_text = '';
+    //                     line_length += line_increment;
+    //                     if (line_length > horizontal) {
+    //                         line_length = horizontal;
+    //                     }
+    //                 }
+
+    //                 temp_text += texts[i][j];
+    //             }
+    //             temp_text += ' ';
+    //         }
+    //     }
+
+    //     result.push(temp_text.trim());
+
+    //     result = result.join('\n').replaceAll('|', '-');
+
+    //     return result;
+    // }   
+
+    // formatTextBarrel(width_rect, width_letter, text, min_width, max_width, line_increment) {
+    //     const horizontal = Math.floor(width_rect / width_letter);
+    //     text = text.replaceAll('-', '|');
+    //     text = this.hyphenation(text);
+    //     let texts = text.split(' ').map(t => t.split('-'));
+    //     let result = [];
+    //     let temp_text = '';
+    //     let line_length = min_width;
+    //     let middle_index = Math.floor(texts.length / 2);
+
+    //     for (var i = 0; i < texts.length; i++) {
+    //         if (texts[i].length === 1) {
+    //             if (temp_text.length + texts[i].length > line_length) {
+    //                 result.push(temp_text.trim());
+    //                 temp_text = '';
+    //                 if (i < middle_index) {
+    //                     line_length += line_increment;
+    //                     if (line_length > max_width) {
+    //                         line_length = max_width;
+    //                     }
+    //                 } else {
+    //                     line_length -= line_increment;
+    //                     if (line_length < min_width) {
+    //                         line_length = min_width;
+    //                     }
+    //                 }
+    //             }
+
+    //             temp_text += texts[i] + ' ';
+    //         } else {
+    //             for (var j = 0; j < texts[i].length; j++) {
+    //                 if (temp_text.length + texts[i][j].length > line_length && j <  texts[i].length && j != 0) {
+    //                     result.push(temp_text.trim() + '-');
+    //                     temp_text = '';
+    //                     if (i < middle_index) {
+    //                         line_length += line_increment;
+    //                         if (line_length > max_width) {
+    //                             line_length = max_width;
+    //                         }
+    //                     } else {
+    //                         line_length -= line_increment;
+    //                         if (line_length < min_width) {
+    //                             line_length = min_width;
+    //                         }
+    //                     }
+    //                 }
+
+    //                 if (temp_text.length + texts[i][j].length > line_length) {
+    //                     result.push(temp_text.trim());
+    //                     temp_text = '';
+    //                     if (i < middle_index) {
+    //                         line_length += line_increment;
+    //                         if (line_length > max_width) {
+    //                             line_length = max_width;
+    //                         }
+    //                     } else {
+    //                         line_length -= line_increment;
+    //                         if (line_length < min_width) {
+    //                             line_length = min_width;
+    //                         }
+    //                     }
+    //                 }
+
+    //                 temp_text += texts[i][j];
+    //             }
+    //             temp_text += ' ';
+    //         }
+    //     }
+
+    //     result.push(temp_text.trim());
+
+    //     result = result.join('\n').replaceAll('|', '-');
+
+    //     return result;
+    // }
+
 }

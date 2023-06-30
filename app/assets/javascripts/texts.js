@@ -13,6 +13,8 @@ class Texts {
 
         document.getElementById('canvas').addEventListener('keyup', (evt)=> {
             if (main.canvas.selected && evt.key == 'Enter') {
+                if (this.current_line >= this.texts.length) return;
+
                 const before_line = document.querySelector(`li[index="${this.current_line}"]`);
                 const text = document.getElementById('textareaInput');
                 before_line.classList.remove('bg-blue-100');
@@ -20,6 +22,27 @@ class Texts {
                 text.value = this.texts[this.current_line];
                 text.dispatchEvent(new Event("keyup"));
                 this.current_line++;
+                if (this.current_line < this.texts.length) {
+                    while (this.texts[this.current_line].startsWith('##')) {
+                        if (this.current_line >= this.texts.length) break;
+                        this.current_line++;
+                    }
+                } else {
+                    this.current_line = this.texts.length - 1;
+                }
+
+                const after_line = document.querySelector(`li[index="${this.current_line}"]`);
+                after_line.classList.add('bg-blue-100');
+                document.getElementById('texts').scroll({
+                    top: after_line.offsetTop - document.getElementById('texts').offsetTop,
+                    behavior: "smooth",
+                })
+            } else if (main.canvas.selected && evt.key.startsWith('000')) {
+                const before_line = document.querySelector(`li[index="${this.current_line}"]`);
+                const text = document.getElementById('textareaInput');
+                before_line.classList.remove('bg-blue-100');
+
+                this.current_line = parseInt(evt.key);
 
                 const after_line = document.querySelector(`li[index="${this.current_line}"]`);
                 after_line.classList.add('bg-blue-100');
@@ -49,8 +72,10 @@ class Texts {
             }
             li.setAttribute('index', i);
             li.addEventListener('click', (evt) => {
-                document.getElementById('textareaInput').value = this.texts[parseInt(li.getAttribute('index'))];
+                const id = parseInt(li.getAttribute('index'));
+                document.getElementById('textareaInput').value = this.texts[id];
                 document.getElementById('textareaInput').dispatchEvent(new Event("keyup"));
+                document.getElementById('canvas').dispatchEvent(new KeyboardEvent('keyup', { key: `000${id}`, current_line: id }));
             });
 
             const span = document.createElement('span');

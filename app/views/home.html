@@ -8,13 +8,15 @@
     <link href="/stylesheets/application.css" rel="stylesheet">
     <script src="/dist/flowbite.min.js"></script>
     <script src="/javascripts/alert.js"></script>
+    <script src="/javascripts/lib/hyphen.js"></script>
+    <script src="/javascripts/lib/pt.js"></script>
 </head>
 
 <body class="h-screen">
     <div class="flex h-full gap-2">
-        <div class="basis-3/12 bg-zinc-200 h-full overflow-y-auto overflow-x-hidden p-2">
-            <div class="mb-2 select-none">
-                <label for="hide_box" class="mb-2 text-sm font-medium text-gray-900 dark:text-white">Hide boxs</label>
+        <div class="basis-3/12 bg-zinc-200 h-full overflow-y-auto overflow-x-hidden p-2 relative">
+            <div class="mb-1 select-none absolute">
+                <label for="hide_box" class="mb-1 text-sm font-medium text-gray-900 dark:text-white">Hide boxs</label>
                 <input type="checkbox" name="hide_box" id="hide_box">
             </div>
             <div id="selected_bubble_canvas"></div>
