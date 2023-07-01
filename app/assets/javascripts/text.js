@@ -15,7 +15,7 @@ class TextBubble {
         this.color = objects.color || "#000000";
         this.alignment_text = objects.alignment_text || 'center';
         this.letter_spacing = objects.letter_spacing || 0;
-        this.degrees = objects.letter_spacing || 0;
+        this.degrees = objects.degrees || 0;
 
         this.margin = objects.margin || {
             top: 0,
@@ -201,6 +201,9 @@ class TextBubble {
             bold: this.bold,
             italic: this.italic,
             color: this.color,
+            alignment_text: this.alignment_text,
+            letter_spacing: this.letter_spacing,
+            degrees: this.degrees,
             margin: {
                 top: this.margin.top * percent,
                 top: this.margin.top * percent,
