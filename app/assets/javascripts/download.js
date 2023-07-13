@@ -21,6 +21,14 @@ class Download {
             link.click();
         }, 1000)
     }
+
+    save_image() {
+
+    }
+
+    load(file) {
+
+    }
 }
 
 new Download(main.canvas);

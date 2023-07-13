@@ -22,7 +22,7 @@ class SocketServer:
         while True:
             self.client, address = self.server.accept()
             while True:
-                data = self.client.recv(4096)
+                data = self.client.recv(8192)
                 if not data:
                     break
 
