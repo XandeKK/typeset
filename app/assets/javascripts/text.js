@@ -30,16 +30,46 @@ class TextBubble {
 
         this.bubble.canvas.context.save();
 
-        // rotate text
-        this.bubble.canvas.context.translate(this.rect.x1  + this.bubble.width / 2, this.rect.y1  + this.bubble.height / 2);
-        this.bubble.canvas.context.rotate(this.degrees * Math.PI / 180);
-        this.bubble.canvas.context.translate(-(this.rect.x1  + this.bubble.width / 2), -(this.rect.y1  + this.bubble.height / 2));
+        this.rotateText();
 
         this.bubble.canvas.context.textAlign = this.alignment_text;
         this.bubble.canvas.context.letterSpacing = `${this.letter_spacing}px`;
+        
         let maxWidth = this.rect.x2 - this.rect.x1 - this.margin.left - this.margin.right;
         const textMeasured = this.bubble.canvas.context.measureText('M');
         let lineHeight = textMeasured.fontBoundingBoxAscent + textMeasured.fontBoundingBoxDescent;
+
+        let lines = this.breakTextIntoLines(maxWidth);
+
+        let totalHeight = lines.length * lineHeight;
+        let y = this.rect.y1 + this.margin.top + (this.rect.y2 - this.rect.y1 - totalHeight - this.margin.top - this.margin.bottom) / 2 + lineHeight;
+        let x = 0;
+        if (this.alignment_text == 'left' || this.alignment_text == 'start') {
+            x = this.rect.x1 + this.margin.left;
+        } else {
+            x = this.rect.x1 + this.margin.left + (this.rect.x2 - this.rect.x1 - this.margin.left - this.margin.right) / 2;
+        }
+
+        for (let i = 0; i < lines.length; i++) {
+            if (this.outline.on) { // add outline
+                this.drawOutline(lines[i], x, y);
+            }
+            
+            this.drawText(lines[i], x, y);
+
+            y += lineHeight;
+        }
+
+        this.bubble.canvas.context.restore();
+    }
+
+    rotateText() {
+        this.bubble.canvas.context.translate(this.rect.x1  + this.bubble.width / 2, this.rect.y1  + this.bubble.height / 2);
+        this.bubble.canvas.context.rotate(this.degrees * Math.PI / 180);
+        this.bubble.canvas.context.translate(-(this.rect.x1  + this.bubble.width / 2), -(this.rect.y1  + this.bubble.height / 2));   
+    }
+
+    breakTextIntoLines(maxWidth) {
         let lines = this.text_original.split('\n');
         for (let i = 0; i < lines.length; i++) {
             let words = lines[i].split(' ');
@@ -58,29 +88,20 @@ class TextBubble {
             }
             lines[i] = line;
         }
-        let totalHeight = lines.length * lineHeight;
-        let y = this.rect.y1 + this.margin.top + (this.rect.y2 - this.rect.y1 - totalHeight - this.margin.top - this.margin.bottom) / 2 + lineHeight;
-        let x = 0;
-        if (this.alignment_text == 'left' || this.alignment_text == 'start') {
-            x = this.rect.x1 + this.margin.left;
-        } else {
-            x = this.rect.x1 + this.margin.left + (this.rect.x2 - this.rect.x1 - this.margin.left - this.margin.right) / 2;
-        }
-        for (let i = 0; i < lines.length; i++) {
-            if (this.outline.on) { // add outline
-                this.bubble.canvas.context.miterLimit = 2;
-                this.bubble.canvas.context.lineJoin = 'circle';
-                this.bubble.canvas.context.strokeStyle = this.outline.color;
-                this.bubble.canvas.context.lineWidth = this.outline.size;
-                this.bubble.canvas.context.strokeText(lines[i], x, y);
-            }
-            this.bubble.canvas.context.fillStyle = this.color;
-            this.bubble.canvas.context.fillText(lines[i], x, y);
+        return lines;
+    }
 
-            y += lineHeight;
-        }
+    drawOutline(line, x, y) {
+        this.bubble.canvas.context.miterLimit = 2;
+        this.bubble.canvas.context.lineJoin = 'circle';
+        this.bubble.canvas.context.strokeStyle = this.outline.color;
+        this.bubble.canvas.context.lineWidth = this.outline.size;
+        this.bubble.canvas.context.strokeText(line, x, y);
+    }
 
-        this.bubble.canvas.context.restore();
+    drawText(line, x, y) {
+        this.bubble.canvas.context.fillStyle = this.color;
+        this.bubble.canvas.context.fillText(line, x, y);
     }
 
     set_text(text) {
