@@ -16,6 +16,7 @@ class TextBubble {
         this.alignment_text = objects.alignment_text || 'center';
         this.letter_spacing = objects.letter_spacing || 0;
         this.degrees = objects.degrees || 0;
+        this.line_height = objects.line_height || 0;
 
         this.margin = objects.margin || {
             top: 0,
@@ -37,7 +38,7 @@ class TextBubble {
         
         let maxWidth = this.rect.x2 - this.rect.x1 - this.margin.left - this.margin.right;
         const textMeasured = this.bubble.canvas.context.measureText('M');
-        let lineHeight = textMeasured.fontBoundingBoxAscent + textMeasured.fontBoundingBoxDescent;
+        let lineHeight = textMeasured.fontBoundingBoxAscent + textMeasured.fontBoundingBoxDescent + this.line_height;
 
         let lines = this.breakTextIntoLines(maxWidth);
 
@@ -198,6 +199,11 @@ class TextBubble {
         this.bubble.canvas.draw();
     }
 
+    set_line_height(line_height) {
+        this.line_height = parseFloat(line_height);
+        this.bubble.canvas.draw();
+    }
+
     dup(percent, canvas) {
         const bubble = new Bubble(this.rect.x1 * percent, this.rect.y1 * percent,
             (this.rect.x2 - this.rect.x1) * percent, (this.rect.y2 - this.rect.y1) * percent, canvas, false);
@@ -214,6 +220,7 @@ class TextBubble {
             alignment_text: this.alignment_text,
             letter_spacing: this.letter_spacing,
             degrees: this.degrees,
+            line_height: this.line_height,
             margin: {
                 top: this.margin.top * percent,
                 top: this.margin.top * percent,
@@ -541,14 +548,32 @@ class TextBubble {
         degreesInput.type = 'number';
         degreesInput.value = this.degrees;
 
-        degreesDiv.appendChild(degreesLabel);
-        degreesDiv.appendChild(degreesInput);
-
-        container.appendChild(degreesDiv);
-
         degreesInput.addEventListener('change', (evt) => {
             this.set_degrees(evt.target.value);
         });
+
+        degreesDiv.appendChild(degreesLabel);
+        degreesDiv.appendChild(degreesInput);
+
+        const lineHeightLabel = document.createElement('label');
+        lineHeightLabel.className = 'ml-2 mr-2 text-sm font-medium text-gray-900 dark:text-white';
+        lineHeightLabel.setAttribute('for', 'lineHeight');
+        lineHeightLabel.textContent = 'line Height';
+
+        const lineHeightInput = document.createElement('input');
+        lineHeightInput.className = 'w-14 p-1.5 ml-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500';
+        lineHeightInput.type = 'number';
+        lineHeightInput.setAttribute('step', '0.5');
+        lineHeightInput.value = this.line_height;
+
+        lineHeightInput.addEventListener('change', (evt) => {
+            this.set_line_height(evt.target.value);
+        });
+
+        degreesDiv.appendChild(lineHeightLabel);
+        degreesDiv.appendChild(lineHeightInput);
+
+        container.appendChild(degreesDiv);
 
         const textareaDiv = document.createElement('div');
         textareaDiv.className = 'mb-2';

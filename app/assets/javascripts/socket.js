@@ -35,7 +35,6 @@ class Socket {
                 type: 'images',
                 files: Array.from(files).map(file => path.value + "/" + file.name)
             }
-            console.log(message);
             this.socket.send(JSON.stringify(message));
         });
     }
