@@ -1,7 +1,7 @@
 class TextBubble {
     constructor(objects) {
         this.text_original = objects.text || '';
-        this.font = objects.font || 'WildWordsRoman';
+        this.font = objects.font || 'CCWildWords-Regular';
         this.font_size = objects.font_size || 28;
         this.bubble = objects.bubble;
         this.rect = this.bubble.rect;
@@ -37,7 +37,7 @@ class TextBubble {
         this.bubble.canvas.context.letterSpacing = `${this.letter_spacing}px`;
         
         let maxWidth = this.rect.x2 - this.rect.x1 - this.margin.left - this.margin.right;
-        const textMeasured = this.bubble.canvas.context.measureText('M');
+        const textMeasured = this.bubble.canvas.context.measureText('Á');
         let lineHeight = textMeasured.fontBoundingBoxAscent + textMeasured.fontBoundingBoxDescent + this.line_height;
 
         let lines = this.breakTextIntoLines(maxWidth);

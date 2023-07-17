@@ -19,15 +19,7 @@ class Download {
             link.href = dataURL;
             link.download = canvas_original.objects[0].filename;
             link.click();
-        }, 1000)
-    }
-
-    save_image() {
-
-    }
-
-    load(file) {
-
+        }, 1000);
     }
 }
 

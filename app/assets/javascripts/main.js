@@ -67,7 +67,7 @@ class Main {
 
         boxs.forEach((box) => {
             const bubble = new Bubble(box.x1 * image.percent, box.y1 * image.percent, (box.x2 - box.x1) * image.percent, (box.y2 - box.y1) * image.percent, this.canvas);
-            const text = new TextBubble({ text: "", font: 'CCWildWords', font_size: 11, bubble: bubble });
+            const text = new TextBubble({ text: "", font: 'CCWildWords-Regular', font_size: 11, bubble: bubble });
             bubble.set_object_text(text);
             this.canvas.add_object(bubble);
             this.canvas.add_object(text);
