@@ -1,4 +1,4 @@
-class TextBubble {
+class TextCanvas {
     constructor(objects) {
         this.text_original = objects.text || '';
         this.font = objects.font || 'CCWildWords-Regular';
@@ -205,10 +205,10 @@ class TextBubble {
     }
 
     dup(percent, canvas) {
-        const bubble = new Bubble(this.rect.x1 * percent, this.rect.y1 * percent,
+        const bubble = new BubbleCanvas(this.rect.x1 * percent, this.rect.y1 * percent,
             (this.rect.x2 - this.rect.x1) * percent, (this.rect.y2 - this.rect.y1) * percent, canvas, false);
 
-        return new TextBubble({
+        return new TextCanvas({
             text: this.text_original,
             font: this.font,
             font_size: this.font_size * percent,
@@ -236,31 +236,31 @@ class TextBubble {
     }
 
     deselect() {
-        document.getElementById('selected_bubble').innerHTML = '';
+        document.getElementById('selected_text').innerHTML = '';
     }
 
     generate_html() {
-        const container = document.getElementById('selected_bubble');
+        const container = document.getElementById('selected_text');
         container.innerHTML = '';
 
         const grid1 = document.createElement('div');
-        grid1.className = 'grid grid-cols-4 gap-4 mb-2';
+        grid1.className = 'flex gap-1 justify-between mb-2';
 
         const sides = ['top', 'bottom', 'left', 'right'];
 
         sides.forEach(side => {
             const sideDiv = document.createElement('div');
+            sideDiv.className = 'w-8';
 
             const sideLabel = document.createElement('label');
-            sideLabel.className = 'text-sm font-medium text-gray-900 dark:text-white';
+            sideLabel.className = 'block text-xs font-medium text-gray-700 truncate';
             sideLabel.setAttribute('for', side);
             sideLabel.textContent = side.charAt(0).toUpperCase() + side.slice(1);
 
             const sideInput = document.createElement('input');
-            sideInput.className = 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-1.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500';
+            sideInput.className = 'mt-1 block w-8 rounded-md border-gray-300 shadow-sm py-1 px-1 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 text-xs';
             sideInput.type = 'number';
             sideInput.value = this.margin[side];
-
 
             sideInput.addEventListener('change', (evt) => {
                 const objects = {};
@@ -276,14 +276,14 @@ class TextBubble {
         container.appendChild(grid1);
 
         const fontsDiv = document.createElement('div');
-        fontsDiv.className = 'flex items-center mb-2 relative';
+        fontsDiv.className = 'flex gap-1 items-center mb-2 relative';
 
         const fontsLabel = document.createElement('label');
-        fontsLabel.className = 'mr-2 text-sm font-medium text-gray-900 dark:text-white';
+        fontsLabel.className = 'text-xs font-medium text-gray-700';
         fontsLabel.textContent = 'Fonts';
 
         const fontsTextInput = document.createElement('input');
-        fontsTextInput.className = 'w-full p-1.5 ml-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50  focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500';
+        fontsTextInput.className = 'w-full text-xs p-1 text-gray-900 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500';
         fontsTextInput.type = 'text';
         fontsTextInput.value = this.font;
 
@@ -336,7 +336,7 @@ class TextBubble {
         });
 
         const fontsSizeInput = document.createElement('input');
-        fontsSizeInput.className = 'w-10 p-1.5 ml-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50  focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500';
+        fontsSizeInput.className = 'w-8 p-1 text-xs text-gray-900 border border-gray-300 rounded-lg  focus:ring-blue-500 focus:border-blue-500';
         fontsSizeInput.type = 'number';
         fontsSizeInput.id = 'fonts-size';
         fontsSizeInput.value = this.font_size;
@@ -351,15 +351,15 @@ class TextBubble {
 
         container.appendChild(fontsDiv);
 
-        const colorDiv = document.createElement('div');
-        colorDiv.className = 'flex items-center mb-2 relative';
+        const styleDiv = document.createElement('div');
+        styleDiv.className = 'flex items-center gap-1 mb-2 relative';
 
         const colorLabel = document.createElement('label');
-        colorLabel.className = 'mr-2 text-sm font-medium text-gray-900 dark:text-white';
+        colorLabel.className = 'text-xs font-medium text-gray-900';
         colorLabel.textContent = 'Color';
 
         const colorTextInput = document.createElement('input');
-        colorTextInput.className = 'w-full ml-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50  focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500';
+        colorTextInput.className = 'w-10 text-gray-900 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 ';
         colorTextInput.type = 'color';
         colorTextInput.value = this.color;
 
@@ -367,21 +367,65 @@ class TextBubble {
             this.set_color(evt.target.value);
         });
 
-        colorDiv.appendChild(colorLabel);
-        colorDiv.appendChild(colorTextInput);
+        const boldDiv = document.createElement('div');
+        boldDiv.className = 'flex items-center gap-1';
 
-        container.appendChild(colorDiv);
+        const boldLabel = document.createElement('label');
+        boldLabel.className = 'text-xs font-medium text-gray-900';
+        boldLabel.setAttribute('for', 'bold');
+        boldLabel.textContent = 'Bold';
+
+        const boldInput = document.createElement('input');
+        boldInput.className = 'w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500';
+        boldInput.type = 'checkbox';
+        boldInput.id = 'bold';
+        boldInput.checked = this.bold;
+
+        boldInput.addEventListener('change', (evt) => {
+            this.set_bold(evt.target.checked);
+        });
+
+        boldDiv.appendChild(boldLabel);
+        boldDiv.appendChild(boldInput);
+
+        const italicDiv = document.createElement('div');
+        italicDiv.className = 'flex items-center gap-1';
+
+        const italicLabel = document.createElement('label');
+        italicLabel.className = 'text-xs font-medium text-gray-900';
+        italicLabel.setAttribute('for', 'italic');
+        italicLabel.textContent = 'Italic';
+
+        const italicInput = document.createElement('input');
+        italicInput.className = 'w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500';
+        italicInput.type = 'checkbox';
+        italicInput.id = 'italic';
+        italicInput.checked = this.italic;
+
+        italicInput.addEventListener('change', (evt) => {
+            this.set_italic(evt.target.checked);
+        });
+
+        italicDiv.appendChild(italicLabel);
+        italicDiv.appendChild(italicInput);
+
+        styleDiv.appendChild(colorLabel);
+        styleDiv.appendChild(colorTextInput);
+        styleDiv.appendChild(boldDiv);
+        styleDiv.appendChild(italicDiv);
+
+        container.appendChild(styleDiv);
 
         const outlineDiv = document.createElement('div');
-        outlineDiv.className = 'flex items-center mb-2';
+        outlineDiv.className = 'flex items-center mb-2 gap-1';
 
         const outlineLabel = document.createElement('label');
-        outlineLabel.className = 'mr-2 text-sm font-medium text-gray-900 dark:text-white';
+        outlineLabel.className = 'text-xs font-medium text-gray-900';
         outlineLabel.setAttribute('for', 'outline-text');
         outlineLabel.textContent = 'Outline';
 
         const outlineColorInput = document.createElement('input');
-        outlineColorInput.className = 'w-12 h-6 rounded-full';
+        outlineColorInput.className = 'w-10';
         outlineColorInput.type = 'color';
         outlineColorInput.value = this.outline.color;
 
@@ -390,7 +434,7 @@ class TextBubble {
         });
 
         const outlineSizeInput = document.createElement('input');
-        outlineSizeInput.className = 'w-14 p-1.5 ml-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50  focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500';
+        outlineSizeInput.className = 'text-xs w-8 p-1 text-gray-900 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500';
         outlineSizeInput.type = 'number';
         outlineSizeInput.value = this.outline.size;
 
@@ -399,7 +443,7 @@ class TextBubble {
         });
 
         const outlineCheckbox = document.createElement('input');
-        outlineCheckbox.className = 'w-4 h-4 ml-2 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600';
+        outlineCheckbox.className = 'w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500';
         outlineCheckbox.type = 'checkbox';
         outlineCheckbox.value = this.outline.on;
 
@@ -414,66 +458,19 @@ class TextBubble {
 
         container.appendChild(outlineDiv);
 
-        const grid2 = document.createElement('div');
-        grid2.className = 'flex gap-4 mb-2';
-
-        const boldDiv = document.createElement('div');
-
-        const boldLabel = document.createElement('label');
-        boldLabel.className = 'text-sm font-medium text-gray-900 dark:text-white mr-2';
-        boldLabel.setAttribute('for', 'bold');
-        boldLabel.textContent = 'Bold';
-
-        const boldInput = document.createElement('input');
-        boldInput.className = 'w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600';
-        boldInput.type = 'checkbox';
-        boldInput.id = 'bold';
-        boldInput.checked = this.bold;
-
-        boldInput.addEventListener('change', (evt) => {
-            this.set_bold(evt.target.checked);
-        });
-
-        boldDiv.appendChild(boldLabel);
-        boldDiv.appendChild(boldInput);
-
-        const italicDiv = document.createElement('div');
-
-        const italicLabel = document.createElement('label');
-        italicLabel.className = 'text-sm font-medium text-gray-900 dark:text-white mr-2';
-        italicLabel.setAttribute('for', 'italic');
-        italicLabel.textContent = 'Italic';
-
-        const italicInput = document.createElement('input');
-        italicInput.className = 'w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600';
-        italicInput.type = 'checkbox';
-        italicInput.id = 'italic';
-        italicInput.checked = this.italic;
-
-        italicInput.addEventListener('change', (evt) => {
-            this.set_italic(evt.target.checked);
-        });
-
-        italicDiv.appendChild(italicLabel);
-        italicDiv.appendChild(italicInput);
-
-        grid2.appendChild(boldDiv);
-        grid2.appendChild(italicDiv);
-
-        container.appendChild(grid2);
-
-        const grid3 = document.createElement('div');
-        grid3.className = 'flex gap-4 mb-2';
+        const alignment_div = document.createElement('div');
+        alignment_div.className = 'flex gap-1 mb-2';
 
         const leftDiv = document.createElement('div');
+        leftDiv.className = 'flex items-center gap-1';
 
         const leftLabel = document.createElement('label');
-        leftLabel.className = 'text-sm font-medium text-gray-900 dark:text-white mr-2';
+        leftLabel.className = 'text-xs font-medium text-gray-900';
         leftLabel.setAttribute('for', 'left');
         leftLabel.textContent = 'left';
 
         const leftInput = document.createElement('input');
-        leftInput.className = 'w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600';
+        leftInput.className = 'w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500';
         leftInput.type = 'radio';
         leftInput.id = 'left';
         leftInput.name = 'align';
@@ -487,14 +484,15 @@ class TextBubble {
         leftDiv.appendChild(leftInput);
 
         const centerDiv = document.createElement('div');
+        centerDiv.className = 'flex items-center gap-1';
 
         const centerLabel = document.createElement('label');
-        centerLabel.className = 'text-sm font-medium text-gray-900 dark:text-white mr-2';
+        centerLabel.className = 'text-xs font-medium text-gray-900';
         centerLabel.setAttribute('for', 'center');
         centerLabel.textContent = 'center';
 
         const centerInput = document.createElement('input');
-        centerInput.className = 'w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600';
+        centerInput.className = 'w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500';
         centerInput.type = 'radio';
         centerInput.id = 'center';
         centerInput.name = 'align';
@@ -507,21 +505,21 @@ class TextBubble {
         centerDiv.appendChild(centerLabel);
         centerDiv.appendChild(centerInput);
 
-        grid3.appendChild(leftDiv);
-        grid3.appendChild(centerDiv);
+        alignment_div.appendChild(leftDiv);
+        alignment_div.appendChild(centerDiv);
 
-        container.appendChild(grid3);
+        container.appendChild(alignment_div);
 
         const letterSpacingDiv = document.createElement('div');
-        letterSpacingDiv.className = 'flex items-center mb-2';
+        letterSpacingDiv.className = 'flex items-center mb-2 gap-1';
 
         const letterSpacingLabel = document.createElement('label');
-        letterSpacingLabel.className = 'mr-2 text-sm font-medium text-gray-900 dark:text-white';
+        letterSpacingLabel.className = 'text-xs font-medium text-gray-900';
         letterSpacingLabel.setAttribute('for', 'letter-spacing-text');
         letterSpacingLabel.textContent = 'Letter Spacing';
 
         const letterSpacingInput = document.createElement('input');
-        letterSpacingInput.className = 'w-14 p-1.5 ml-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500';
+        letterSpacingInput.className = 'w-8 p-1 text-xs text-gray-900 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500';
         letterSpacingInput.type = 'number';
         letterSpacingInput.setAttribute('step', '0.1');
         letterSpacingInput.value = this.letter_spacing;
@@ -536,15 +534,15 @@ class TextBubble {
         });
 
         const degreesDiv = document.createElement('div');
-        degreesDiv.className = 'flex items-center mb-2';
+        degreesDiv.className = 'flex items-center mb-2 gap-1';
 
         const degreesLabel = document.createElement('label');
-        degreesLabel.className = 'mr-2 text-sm font-medium text-gray-900 dark:text-white';
+        degreesLabel.className = 'text-xs font-medium text-gray-900';
         degreesLabel.setAttribute('for', 'degrees');
         degreesLabel.textContent = 'Degrees';
 
         const degreesInput = document.createElement('input');
-        degreesInput.className = 'w-14 p-1.5 ml-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500';
+        degreesInput.className = 'w-8 p-1 text-xs text-gray-900 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500';
         degreesInput.type = 'number';
         degreesInput.value = this.degrees;
 
@@ -556,12 +554,12 @@ class TextBubble {
         degreesDiv.appendChild(degreesInput);
 
         const lineHeightLabel = document.createElement('label');
-        lineHeightLabel.className = 'ml-2 mr-2 text-sm font-medium text-gray-900 dark:text-white';
+        lineHeightLabel.className = 'text-xs font-medium text-gray-900';
         lineHeightLabel.setAttribute('for', 'lineHeight');
         lineHeightLabel.textContent = 'line Height';
 
         const lineHeightInput = document.createElement('input');
-        lineHeightInput.className = 'w-14 p-1.5 ml-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500';
+        lineHeightInput.className = 'w-8 p-1 text-xs text-gray-900 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500';
         lineHeightInput.type = 'number';
         lineHeightInput.setAttribute('step', '0.5');
         lineHeightInput.value = this.line_height;
@@ -578,24 +576,18 @@ class TextBubble {
         const textareaDiv = document.createElement('div');
         textareaDiv.className = 'mb-2';
 
-        const textareaLabel = document.createElement('label');
-        textareaLabel.setAttribute('for', 'text');
-        textareaLabel.className = 'block mb-2 text-sm font-medium text-gray-900 pt-2';
-        textareaLabel.textContent = 'Text';
-
         const textareaInput = document.createElement('textarea');
         textareaInput.value = this.text_original;
         textareaInput.setAttribute('rows', '4');
         textareaInput.setAttribute('placeholder', 'Type here');
         textareaInput.setAttribute('id', 'textareaInput');
         textareaInput.style.font = `${this.get_bold()} ${this.get_italic()} 15px ${this.font}`;
-        textareaInput.className = 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-1 w-full';
+        textareaInput.className = 'border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-1 w-full';
 
         textareaInput.addEventListener('keyup', (evt) => {
             this.set_text(evt.target.value);
         });
 
-        textareaDiv.appendChild(textareaLabel);
         textareaDiv.appendChild(textareaInput);
 
         container.appendChild(textareaDiv);

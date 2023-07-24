@@ -19,6 +19,7 @@ class Canvas {
         this.objects = [];
 
         this.selected = null;
+        this.hide_box = false;
 
         this.add_event();
     }
@@ -45,6 +46,18 @@ class Canvas {
                     this.select_bubble(this.objects[i]);
                 }
             }
+        });
+
+        document.getElementById('hide_box').addEventListener('click', (evt)=> {
+            this.hide_box = !this.hide_box;
+            if (this.hide_box) {
+                document.getElementById('eye').classList.add("hidden");
+                document.getElementById('eye-slash').classList.remove("hidden");
+            } else {
+                document.getElementById('eye').classList.remove("hidden");
+                document.getElementById('eye-slash').classList.add("hidden");
+            }
+            this.draw();
         });
     }
 

@@ -19,11 +19,15 @@ class DrawBubble {
             }
         });
 
+        this.canvas.canvas_element.addEventListener('mouseleave', () => {
+            this.drag = false;
+        });
+
         this.canvas.canvas_element.addEventListener('mouseup', () => {
             this.drag = false;
             if (Math.abs(this.rect.w) > this.minDistance && Math.abs(this.rect.h) > this.minDistance) {
-                const bubble = new Bubble(this.rect.startX, this.rect.startY, this.rect.w, this.rect.h, this.canvas);
-                const text = new TextBubble({ text: "...", font: 'CCWildWords-Regular', font_size: 11, bubble: bubble });
+                const bubble = new BubbleCanvas(this.rect.startX, this.rect.startY, this.rect.w, this.rect.h, this.canvas);
+                const text = new TextCanvas({ text: "", font: 'CCWildWords-Regular', font_size: 11, bubble: bubble });
                 bubble.set_object_text(text);
                 this.canvas.add_object(bubble);
                 this.canvas.add_object(text);
@@ -38,5 +42,3 @@ class DrawBubble {
         this.canvas.context.fillRect(this.rect.startX, this.rect.startY, this.rect.w, this.rect.h);
     }
 }
-
-new DrawBubble(main.canvas);

@@ -81,7 +81,6 @@ class Fonts {
         }
     }
 
-
     get_font_set() {
         return new Set(JSON.parse(localStorage.getItem('fonts')));
     }
@@ -131,7 +130,6 @@ class Fonts {
         }
 
         font_help_text.innerHTML = `Showing <span class="font-semibold text-gray-900">${this.paginate == 0 ? 1 : this.max_items * this.paginate}</span> to <span class="font-semibold text-gray-900">${this.results.length < this.max_items * (this.paginate + 1) ? this.results.length : this.max_items * (this.paginate + 1)}</span> of <span class="font-semibold text-gray-900">${this.results.length}</span> Entries`
-
     }
 }
 

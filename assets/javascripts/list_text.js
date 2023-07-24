@@ -1,18 +1,15 @@
-class Texts {
-    constructor() {
+class ListText {
+    constructor(canvas) {
         this.current_line = 0;
         this.texts = [];
+        this.canvas = canvas;
 
         this.add_event();
     }
 
     add_event() {
-        document.getElementById('textsInput').addEventListener('keyup', (evt) => {
-            this.set_texts(evt.target.value);
-        });
-
         document.getElementById('canvas').addEventListener('keyup', (evt)=> {
-            if (main.canvas.selected && evt.key == 'Enter') {
+            if (this.canvas.selected && evt.key == 'Enter') {
                 if (this.current_line >= this.texts.length) return;
 
                 const before_line = document.querySelector(`li[index="${this.current_line}"]`);
@@ -37,7 +34,7 @@ class Texts {
                     top: after_line.offsetTop - document.getElementById('texts').offsetTop,
                     behavior: "smooth",
                 })
-            } else if (main.canvas.selected && evt.key.startsWith('000')) {
+            } else if (this.canvas.selected && evt.key.startsWith('000')) {
                 const before_line = document.querySelector(`li[index="${this.current_line}"]`);
                 const text = document.getElementById('textareaInput');
                 before_line.classList.remove('bg-blue-100');
@@ -92,5 +89,3 @@ class Texts {
         }
     }
 }
-
-new Texts();
