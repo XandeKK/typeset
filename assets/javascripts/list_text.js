@@ -13,7 +13,7 @@ class ListText {
                 if (this.current_line >= this.texts.length) return;
 
                 const before_line = document.querySelector(`li[index="${this.current_line}"]`);
-                const text = document.getElementById('textareaInput');
+                const text = document.getElementById('text_area');
                 before_line.classList.remove('bg-blue-100');
 
                 text.value = this.texts[this.current_line];
@@ -36,7 +36,7 @@ class ListText {
                 })
             } else if (this.canvas.selected && evt.key.startsWith('000')) {
                 const before_line = document.querySelector(`li[index="${this.current_line}"]`);
-                const text = document.getElementById('textareaInput');
+                const text = document.getElementById('text_area');
                 before_line.classList.remove('bg-blue-100');
 
                 this.current_line = parseInt(evt.key);
@@ -70,8 +70,8 @@ class ListText {
             li.setAttribute('index', i);
             li.addEventListener('click', (evt) => {
                 const id = parseInt(li.getAttribute('index'));
-                document.getElementById('textareaInput').value = this.texts[id];
-                document.getElementById('textareaInput').dispatchEvent(new Event("keyup"));
+                document.getElementById('text_area').value = this.texts[id];
+                document.getElementById('text_area').dispatchEvent(new Event("keyup"));
                 document.getElementById('canvas').dispatchEvent(new KeyboardEvent('keyup', { key: `000${id}`, current_line: id }));
             });
 

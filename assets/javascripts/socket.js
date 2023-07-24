@@ -53,7 +53,7 @@ class Socket {
 
     socket_event() {
         this.socket.onopen = () => {
-            console.log('Connected to server!');
+            Alert.alert('Connected to server!');
         };
 
         this.socket.onmessage = (event) => {
@@ -62,7 +62,7 @@ class Socket {
         };
 
         this.socket.onclose = () => {
-            console.log('Disconnected from server');
+            Alert.alert('Disconnected from server');
         };
 
         this.submit.addEventListener('click', () => {

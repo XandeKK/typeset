@@ -5,6 +5,7 @@ class CanvasHandler {
         this.drawer_bubble = new DrawBubble(this.canvas);
         this.socket = new Socket({get_boxs: this.get_boxs.bind(this), canvas_handler: this});
         this.image_handler = new ImageHandler(this);
+        this.list_text = new ListText(this.canvas);
 
         this.images = [];
         this.current_index_image = 0;
@@ -39,6 +40,7 @@ class CanvasHandler {
     image_added() {
         if (this.images.length == 1) {
             this.set_image(this.images[0]);
+            this.set_texts();
         }
 
         if (this.images.length - 2 == this.current_index_image) {
@@ -58,6 +60,14 @@ class CanvasHandler {
             this.canvas.add_object(bubble);
             this.canvas.add_object(text);
         });
+    }
+
+    set_texts() {
+        fetch('/Tradução')
+            .then(response => response.text())
+            .then(text => {
+                this.list_text.set_texts(text);
+            });
     }
 
     set_mode_button(button, show) {

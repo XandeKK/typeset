@@ -114,7 +114,7 @@ class TextCanvas {
         if (document.fonts.check(`${this.font_size}px ${font}`)) {
             this.font = font;
             this.bubble.canvas.draw();
-            document.getElementById('textareaInput').style.font = `${this.get_bold()} ${this.get_italic()} 15px ${this.font}`;
+            document.getElementById('text_area').style.font = `${this.get_bold()} ${this.get_italic()} 15px ${this.font}`;
         }
     }
 
@@ -151,7 +151,7 @@ class TextCanvas {
     set_bold(on) {
         this.bold = on;
         this.bubble.canvas.draw();
-        document.getElementById('textareaInput').style.font = `${this.get_bold()} ${this.get_italic()} 15px ${this.font}`;
+        document.getElementById('text_area').style.font = `${this.get_bold()} ${this.get_italic()} 15px ${this.font}`;
     }
 
     get_bold() {
@@ -164,7 +164,7 @@ class TextCanvas {
     set_italic(on) {
         this.italic = on;
         this.bubble.canvas.draw();
-        document.getElementById('textareaInput').style.font = `${this.get_bold()} ${this.get_italic()} 15px ${this.font}`;
+        document.getElementById('text_area').style.font = `${this.get_bold()} ${this.get_italic()} 15px ${this.font}`;
     }
 
     get_italic() {
@@ -579,19 +579,19 @@ class TextCanvas {
         const textareaDiv = document.createElement('div');
         textareaDiv.className = 'mb-2';
 
-        const textareaInput = document.createElement('textarea');
-        textareaInput.id = 'text_area';
-        textareaInput.value = this.text_original;
-        textareaInput.setAttribute('rows', '4');
-        textareaInput.setAttribute('placeholder', 'Type here');
-        textareaInput.style.font = `${this.get_bold()} ${this.get_italic()} 15px ${this.font}`;
-        textareaInput.className = 'border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-1 w-full';
+        const text_area = document.createElement('textarea');
+        text_area.id = 'text_area';
+        text_area.value = this.text_original;
+        text_area.setAttribute('rows', '4');
+        text_area.setAttribute('placeholder', 'Type here');
+        text_area.style.font = `${this.get_bold()} ${this.get_italic()} 15px ${this.font}`;
+        text_area.className = 'border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-1 w-full';
 
-        textareaInput.addEventListener('keyup', (evt) => {
+        text_area.addEventListener('keyup', (evt) => {
             this.set_text(evt.target.value);
         });
 
-        textareaDiv.appendChild(textareaInput);
+        textareaDiv.appendChild(text_area);
 
         container.appendChild(textareaDiv);
     }
