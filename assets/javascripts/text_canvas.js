@@ -258,6 +258,7 @@ class TextCanvas {
             sideLabel.textContent = side.charAt(0).toUpperCase() + side.slice(1);
 
             const sideInput = document.createElement('input');
+            sideInput.id = side + '_input';
             sideInput.className = 'mt-1 block w-8 rounded-md border-gray-300 shadow-sm py-1 px-1 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 text-xs';
             sideInput.type = 'number';
             sideInput.value = this.margin[side];
@@ -283,6 +284,7 @@ class TextCanvas {
         fontsLabel.textContent = 'Fonts';
 
         const fontsTextInput = document.createElement('input');
+        fontsTextInput.id = 'font_text_input';
         fontsTextInput.className = 'w-full text-xs p-1 text-gray-900 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500';
         fontsTextInput.type = 'text';
         fontsTextInput.value = this.font;
@@ -338,7 +340,7 @@ class TextCanvas {
         const fontsSizeInput = document.createElement('input');
         fontsSizeInput.className = 'w-8 p-1 text-xs text-gray-900 border border-gray-300 rounded-lg  focus:ring-blue-500 focus:border-blue-500';
         fontsSizeInput.type = 'number';
-        fontsSizeInput.id = 'fonts-size';
+        fontsSizeInput.id = 'font_size';
         fontsSizeInput.value = this.font_size;
 
         fontsSizeInput.addEventListener('change', (evt) => {
@@ -445,6 +447,7 @@ class TextCanvas {
         const outlineCheckbox = document.createElement('input');
         outlineCheckbox.className = 'w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500';
         outlineCheckbox.type = 'checkbox';
+        outlineCheckbox.id = 'outline_checkbox';
         outlineCheckbox.value = this.outline.on;
 
         outlineCheckbox.addEventListener('change', (evt) => {
@@ -472,7 +475,7 @@ class TextCanvas {
         const leftInput = document.createElement('input');
         leftInput.className = 'w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500';
         leftInput.type = 'radio';
-        leftInput.id = 'left';
+        leftInput.id = 'left_alignment';
         leftInput.name = 'align';
         leftInput.checked = this.alignment_text == 'left' || this.alignment_text == 'start';
 
@@ -494,7 +497,7 @@ class TextCanvas {
         const centerInput = document.createElement('input');
         centerInput.className = 'w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500';
         centerInput.type = 'radio';
-        centerInput.id = 'center';
+        centerInput.id = 'center_alignment';
         centerInput.name = 'align';
         centerInput.checked = this.alignment_text == 'center';
 
@@ -577,10 +580,10 @@ class TextCanvas {
         textareaDiv.className = 'mb-2';
 
         const textareaInput = document.createElement('textarea');
+        textareaInput.id = 'text_area';
         textareaInput.value = this.text_original;
         textareaInput.setAttribute('rows', '4');
         textareaInput.setAttribute('placeholder', 'Type here');
-        textareaInput.setAttribute('id', 'textareaInput');
         textareaInput.style.font = `${this.get_bold()} ${this.get_italic()} 15px ${this.font}`;
         textareaInput.className = 'border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-1 w-full';
 
