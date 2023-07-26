@@ -74,7 +74,8 @@ class Handler:
 
 class IA:
     def __init__(self):
-        self.model = torch.hub.load('ultralytics/yolov5', 'custom', path=os.path.dirname(__file__) + '/datasets/best_1.pt')
+        self.manga = torch.hub.load('ultralytics/yolov5', 'custom', path=os.path.dirname(__file__) + f'/datasets/manga.pt')
+        self.manhwa = torch.hub.load('ultralytics/yolov5', 'custom', path=os.path.dirname(__file__) + f'/datasets/manhwa.pt')
         self.cache = self.load_cache()
 
     def predict(self, files, type_style):
@@ -86,7 +87,11 @@ class IA:
                 time.sleep(0.5)
             else:
                 img = cv2.imread(file)
-                results = self.model(img)
+                print(type_style)
+                if type_style == 'manga':
+                    results = self.manga(img)
+                elif type_style == 'manhwa':
+                    results = self.manhwa(img)
                 boxs = []
                 for *box, label, score in results.xyxy[0]:
                     x1, y1, x2, y2 = map(int, box)
