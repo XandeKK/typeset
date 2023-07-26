@@ -119,6 +119,11 @@ class Canvas {
         this.canvas_element.width = width;
     }
 
+    set_height(height) {
+        this.height = height;
+        this.canvas_element.height = height;
+    }
+
     select_bubble(bubble) {
         this.selected = bubble;
         this.selected.select();

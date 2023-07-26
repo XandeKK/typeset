@@ -3,6 +3,7 @@ class Socket {
         this.path = document.getElementById('path');
         this.start = document.getElementById('start');
         this.end = document.getElementById('end');
+        this.type_style = document.getElementById('type_style');
         this.submit = document.getElementById('submit');
         this.download = document.getElementById('download');
         this.canvas_handler = options.canvas_handler;
@@ -70,7 +71,8 @@ class Socket {
                 type: 'images',
                 path: this.path.value,
                 start: Number(this.start.value),
-                end: Number(this.end.value)
+                end: Number(this.end.value),
+                type_style: this.type_style.value
 
             }
             this.socket.send(JSON.stringify(message));

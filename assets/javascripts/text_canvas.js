@@ -24,6 +24,18 @@ class TextCanvas {
             left: 0,
             right: 0
         }
+
+        this.light = objects.light || {
+            on: false,
+            show: false,
+            horizon: 0,
+            vertical: 0,
+            gradient_intensity: 0,
+            size: 100,
+            geometry_type: 'circle',
+            color: '#ffffff',
+            gradient_direction: 'top'
+        }
     }
 
     draw() {
@@ -31,7 +43,7 @@ class TextCanvas {
 
         this.bubble.canvas.context.save();
 
-        this.rotateText();
+        this.rotate_text();
 
         this.bubble.canvas.context.textAlign = this.alignment_text;
         this.bubble.canvas.context.letterSpacing = `${this.letter_spacing}px`;
@@ -53,10 +65,10 @@ class TextCanvas {
 
         for (let i = 0; i < lines.length; i++) {
             if (this.outline.on) { // add outline
-                this.drawOutline(lines[i], x, y);
+                this.draw_outline(lines[i], x, y);
             }
             
-            this.drawText(lines[i], x, y);
+            this.draw_text(lines[i], x, y);
 
             y += lineHeight;
         }
@@ -64,7 +76,7 @@ class TextCanvas {
         this.bubble.canvas.context.restore();
     }
 
-    rotateText() {
+    rotate_text() {
         this.bubble.canvas.context.translate(this.rect.x1  + this.bubble.width / 2, this.rect.y1  + this.bubble.height / 2);
         this.bubble.canvas.context.rotate(this.degrees * Math.PI / 180);
         this.bubble.canvas.context.translate(-(this.rect.x1  + this.bubble.width / 2), -(this.rect.y1  + this.bubble.height / 2));   
@@ -92,7 +104,7 @@ class TextCanvas {
         return lines;
     }
 
-    drawOutline(line, x, y) {
+    draw_outline(line, x, y) {
         this.bubble.canvas.context.miterLimit = 2;
         this.bubble.canvas.context.lineJoin = 'circle';
         this.bubble.canvas.context.strokeStyle = this.outline.color;
@@ -100,7 +112,7 @@ class TextCanvas {
         this.bubble.canvas.context.strokeText(line, x, y);
     }
 
-    drawText(line, x, y) {
+    draw_text(line, x, y) {
         this.bubble.canvas.context.fillStyle = this.color;
         this.bubble.canvas.context.fillText(line, x, y);
     }
@@ -204,6 +216,11 @@ class TextCanvas {
         this.bubble.canvas.draw();
     }
 
+    set_light(name, value) {
+        this.light[name] = value;
+        this.bubble.canvas.draw();
+    }
+
     dup(percent, canvas) {
         const bubble = new BubbleCanvas(this.rect.x1 * percent, this.rect.y1 * percent,
             (this.rect.x2 - this.rect.x1) * percent, (this.rect.y2 - this.rect.y1) * percent, canvas, false);
@@ -263,7 +280,7 @@ class TextCanvas {
             sideInput.type = 'number';
             sideInput.value = this.margin[side];
 
-            sideInput.addEventListener('change', (evt) => {
+            sideInput.addEventListener('input', (evt) => {
                 const objects = {};
                 objects[side] = Number(evt.target.value);
                 this.set_margin(objects);
@@ -343,7 +360,7 @@ class TextCanvas {
         fontsSizeInput.id = 'font_size';
         fontsSizeInput.value = this.font_size;
 
-        fontsSizeInput.addEventListener('change', (evt) => {
+        fontsSizeInput.addEventListener('input', (evt) => {
             this.set_font_size(evt.target.value);
         });
 
@@ -361,11 +378,11 @@ class TextCanvas {
         colorLabel.textContent = 'Color';
 
         const colorTextInput = document.createElement('input');
-        colorTextInput.className = 'w-10 text-gray-900 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 ';
+        colorTextInput.className = 'w-10 text-gray-900 border border-gray-300 focus:ring-blue-500 focus:border-blue-500';
         colorTextInput.type = 'color';
         colorTextInput.value = this.color;
 
-        colorTextInput.addEventListener('change', (evt) => {
+        colorTextInput.addEventListener('input', (evt) => {
             this.set_color(evt.target.value);
         });
 
@@ -383,7 +400,7 @@ class TextCanvas {
         boldInput.id = 'bold';
         boldInput.checked = this.bold;
 
-        boldInput.addEventListener('change', (evt) => {
+        boldInput.addEventListener('input', (evt) => {
             this.set_bold(evt.target.checked);
         });
 
@@ -404,7 +421,7 @@ class TextCanvas {
         italicInput.id = 'italic';
         italicInput.checked = this.italic;
 
-        italicInput.addEventListener('change', (evt) => {
+        italicInput.addEventListener('input', (evt) => {
             this.set_italic(evt.target.checked);
         });
 
@@ -431,7 +448,7 @@ class TextCanvas {
         outlineColorInput.type = 'color';
         outlineColorInput.value = this.outline.color;
 
-        outlineColorInput.addEventListener('change', (evt) => {
+        outlineColorInput.addEventListener('input', (evt) => {
             this.set_color_outline(evt.target.value);
         });
 
@@ -440,7 +457,7 @@ class TextCanvas {
         outlineSizeInput.type = 'number';
         outlineSizeInput.value = this.outline.size;
 
-        outlineSizeInput.addEventListener('change', (evt) => {
+        outlineSizeInput.addEventListener('input', (evt) => {
             this.set_size_outline(evt.target.value);
         });
 
@@ -450,7 +467,7 @@ class TextCanvas {
         outlineCheckbox.id = 'outline_checkbox';
         outlineCheckbox.value = this.outline.on;
 
-        outlineCheckbox.addEventListener('change', (evt) => {
+        outlineCheckbox.addEventListener('input', (evt) => {
             this.set_outline(evt.target.checked);
         });
 
@@ -479,7 +496,7 @@ class TextCanvas {
         leftInput.name = 'align';
         leftInput.checked = this.alignment_text == 'left' || this.alignment_text == 'start';
 
-        leftInput.addEventListener('change', (evt) => {
+        leftInput.addEventListener('input', (evt) => {
             this.set_alignment_text('left');
         });
 
@@ -501,7 +518,7 @@ class TextCanvas {
         centerInput.name = 'align';
         centerInput.checked = this.alignment_text == 'center';
 
-        centerInput.addEventListener('change', (evt) => {
+        centerInput.addEventListener('input', (evt) => {
             this.set_alignment_text('center');
         });
 
@@ -532,7 +549,7 @@ class TextCanvas {
 
         container.appendChild(letterSpacingDiv);
 
-        letterSpacingInput.addEventListener('change', (evt) => {
+        letterSpacingInput.addEventListener('input', (evt) => {
             this.set_letter_spacing(evt.target.value);
         });
 
@@ -549,7 +566,7 @@ class TextCanvas {
         degreesInput.type = 'number';
         degreesInput.value = this.degrees;
 
-        degreesInput.addEventListener('change', (evt) => {
+        degreesInput.addEventListener('input', (evt) => {
             this.set_degrees(evt.target.value);
         });
 
@@ -567,7 +584,7 @@ class TextCanvas {
         lineHeightInput.setAttribute('step', '0.5');
         lineHeightInput.value = this.line_height;
 
-        lineHeightInput.addEventListener('change', (evt) => {
+        lineHeightInput.addEventListener('input', (evt) => {
             this.set_line_height(evt.target.value);
         });
 
@@ -575,6 +592,213 @@ class TextCanvas {
         degreesDiv.appendChild(lineHeightInput);
 
         container.appendChild(degreesDiv);
+
+        const light_div = document.createElement('div');
+        light_div.className = 'mb-2';
+
+        const button_light = document.createElement('button');
+        button_light.className = 'flex items-center text-purple-700 hover:text-white border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-sm px-2 py-1 text-center mr-2 mb-2';
+        button_light.id = 'dropdown_light';
+        button_light.type = 'button';
+        button_light.innerHTML = `Light<svg class="w-2 h-2 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/></svg></button>`
+
+        light_div.appendChild(button_light);
+
+        const dropdown_light = document.createElement('div');
+        dropdown_light.className = 'z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-80 px-5 py-1';
+        dropdown_light.id = 'dropdown_menu';
+
+        const dropdown = new Dropdown(dropdown_light, button_light, {
+            placement: 'right',
+            onShow: () => {
+                setTimeout(()=> {dropdown_light.style.position = 'fixed'}, 10)
+            },
+        });
+
+        const dropdown_content = document.createElement('div');
+        dropdown_content.className = 'grid gap-2 mb-6 grid-cols-2';
+
+        dropdown_light.appendChild(dropdown_content);
+
+        const show_and_enable_light = ['on', 'show'];
+
+        show_and_enable_light.forEach((item) => {
+            const div = document.createElement('div');
+            div.className = 'flex items-center gap-2 mb-2';
+
+            const label = document.createElement('label');
+            label.className = 'text-sm font-medium text-gray-900';
+            label.textContent = item;
+            label.for = item;
+
+            const input = document.createElement('input');
+            input.className = 'w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500';
+            input.id = item;
+            input.type = 'checkbox';
+
+            input.addEventListener('input', (evt) => {
+                this.set_light(evt.target.id, evt.target.checked);
+            });
+
+            div.appendChild(input);
+            div.appendChild(label);
+
+            dropdown_content.appendChild(div);
+        });
+
+        const content_range = [
+            {
+                name: 'horizon'
+            },
+            {
+                name: 'vertical'
+            },
+            {
+                name: 'gradient_intensity'
+            },
+            {
+                name: 'size',
+                max: 1000,
+                step: 1
+            }
+        ]
+
+        content_range.forEach((content) => {
+            const div = document.createElement('div');
+
+            const label = document.createElement('label');
+            label.className = 'block mb-2 text-sm font-medium text-gray-900';
+            label.textContent = content.name;
+            label.for = content.name;
+
+            const input = document.createElement('input');
+            input.className = 'w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer';
+            input.id = content.name;
+            input.type = 'range';
+            input.min = 0;
+            input.max = content.max || 1;
+            input.step = content.step || 0.01;
+            input.value = this.light[content];
+
+            input.addEventListener('input', (evt) => {
+                this.set_light(evt.target.id, evt.target.value);
+            });
+
+            div.appendChild(label);
+            div.appendChild(input);
+
+            dropdown_content.appendChild(div);
+        });
+
+        const geometry_type = document.createElement('div');
+
+        const label_geometry_type = document.createElement('label');
+        label_geometry_type.className = 'block mb-2 text-sm font-medium text-gray-900';
+        label_geometry_type.textContent = 'Geometry Type:';
+
+        const geometry_type_radio_div = document.createElement('div');
+        geometry_type_radio_div.className = 'flex gap-2';
+
+        const geometries = ['circle', 'rect'];
+
+        geometries.forEach((geometry) => {
+            const div = document.createElement('div');
+            div.className = 'flex items-center mb-4';
+            
+            const input = document.createElement('input');
+            input.className = 'w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500';
+            input.id = geometry;
+            input.type = 'radio';
+            input.value = geometry;
+            input.name = 'geometry_type';
+            input.checked = this.light.geometry_type == geometry;
+
+            input.addEventListener('input', (evt) => {
+                this.set_light('geometry_type', evt.target.value);
+            });
+
+            const label = document.createElement('label');
+            label.className = 'ml-2 text-sm font-medium text-gray-900';
+            label.for = geometry;
+            label.textContent = geometry;
+
+            div.appendChild(input);
+            div.appendChild(label);
+
+            geometry_type_radio_div.appendChild(div);
+        })
+
+        geometry_type.appendChild(label_geometry_type);
+        geometry_type.appendChild(geometry_type_radio_div);
+        dropdown_content.appendChild(geometry_type);
+        
+        const div_color_light = document.createElement('div');
+        dropdown_content.appendChild(div_color_light);
+
+        const label_color_light = document.createElement('label');
+        label_color_light.className = 'block mb-2 text-sm font-medium text-gray-900';
+        label_color_light.textContent = 'Color:';
+        label_color_light.for = 'color_light';
+
+        const input_color_light = document.createElement('input');
+        input_color_light.className = 'w-full text-gray-900 border border-gray-300 focus:ring-blue-500 focus:border-blue-500';
+        input_color_light.id = 'color_light';
+        input_color_light.type = 'color';
+
+        input_color_light.addEventListener('input', (evt) => {
+            this.set_light('color', evt.target.value);
+        });
+
+        div_color_light.appendChild(label_color_light);
+        div_color_light.appendChild(input_color_light);
+
+        const gradient_direction = document.createElement('div');
+        gradient_direction.className = 'col-span-2';
+
+        dropdown_content.appendChild(gradient_direction);
+
+        const label_gradient_direction = document.createElement('label');
+        label_gradient_direction.className = 'block mb-2 text-sm font-medium text-gray-900';
+        label_gradient_direction.textContent = 'Gradient Direction:';
+
+        gradient_direction.appendChild(label_gradient_direction);
+
+        const gradient_direction_div = document.createElement('div');
+        gradient_direction_div.className = 'grid grid-cols-2 gap-2';
+
+        gradient_direction.appendChild(gradient_direction_div);
+
+        const gradient_direction_sides = ['left', 'top', 'right', 'bottom'];
+
+        gradient_direction_sides.forEach((side) => {
+            const div = document.createElement('div');
+            div.className = 'flex items-center mb-4';
+
+            const input = document.createElement('input');
+            input.className = 'w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500';
+            input.id = side;
+            input.type = 'radio';
+            input.value = side;
+            input.name = 'gradient_direction';
+            input.checked = this.light.gradient_direction == side;
+
+            input.addEventListener('input', (evt) => {
+                this.set_light('gradient_direction', evt.target.value);
+            });
+
+            const label = document.createElement('label');
+            label.className = 'ml-2 text-sm font-medium text-gray-900';
+            label.for = side;
+            label.textContent = side;
+
+            div.appendChild(input);
+            div.appendChild(label);
+
+            gradient_direction_div.appendChild(div);
+        });
+
+        container.appendChild(light_div);
+        container.appendChild(dropdown_light);
 
         const textareaDiv = document.createElement('div');
         textareaDiv.className = 'mb-2';

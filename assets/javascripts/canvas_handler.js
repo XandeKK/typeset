@@ -30,6 +30,7 @@ class CanvasHandler {
                     path_with_filename: msg.filename.replace('raw/', ''),
                     filename: filename,
                     boxs: msg.boxs,
+                    type_style: msg.type_style,
                     img: img
                 });
                 this.image_added();

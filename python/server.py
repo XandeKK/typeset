@@ -65,7 +65,7 @@ class Handler:
                     files.append(png_path)
 
         files = sorted(files)
-        self.ia.predict(files)
+        self.ia.predict(files, message["type_style"])
         time.sleep(1)
         server.send({'type': 'finished'})
 
@@ -77,7 +77,7 @@ class IA:
         self.model = torch.hub.load('ultralytics/yolov5', 'custom', path=os.path.dirname(__file__) + '/datasets/best_1.pt')
         self.cache = self.load_cache()
 
-    def predict(self, files):
+    def predict(self, files, type_style):
         for file in files:
             print(f'predict file: {file}')
             file_hash = self.calculate_md5(file)
@@ -93,7 +93,7 @@ class IA:
                     boxs.append({'x1': x1, 'y1': y1, 'x2': x2, 'y2': y2})
                 self.cache[file_hash] = boxs
                 self.save_cache()
-            server.send({'filename': file, 'boxs': boxs, 'type': 'boxs'})
+            server.send({'filename': file, 'boxs': boxs, 'type': 'boxs', 'type_style': type_style})
 
     def calculate_md5(self, file):
         with open(file, 'rb') as f:
