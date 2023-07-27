@@ -10,6 +10,12 @@ class TextCanvas {
             size: 3,
             color: "#ffffff"
         };
+        this.outline_blur = objects.outline_blur || {
+            on: false,
+            size: 3,
+            blur_level: 5,
+            color: "#ffffff"
+        };
         this.bold = objects.bold || false;
         this.italic = objects.italic || false;
         this.color = objects.color || "#000000";
@@ -28,10 +34,11 @@ class TextCanvas {
         this.light = objects.light || {
             on: false,
             show: false,
-            horizon: 0,
-            vertical: 0,
-            gradient_intensity: 0,
-            size: 100,
+            x: this.rect.x1,
+            y: this.rect.y1,
+            width: 100,
+            height: 100,
+            radius: 300,
             geometry_type: 'circle',
             color: '#ffffff',
             gradient_direction: 'top'
@@ -63,11 +70,21 @@ class TextCanvas {
             x = this.rect.x1 + this.margin.left + (this.rect.x2 - this.rect.x1 - this.margin.left - this.margin.right) / 2;
         }
 
+        // drawing outline
+        let y_outline = y;
+
         for (let i = 0; i < lines.length; i++) {
-            if (this.outline.on) { // add outline
-                this.draw_outline(lines[i], x, y);
+            if (this.outline_blur.on) {
+                this.draw_outline_blur(lines[i], x, y_outline);
             }
-            
+            if (this.outline.on) {
+                this.draw_outline(lines[i], x, y_outline);
+            }
+
+            y_outline += lineHeight;
+        }
+
+        for (let i = 0; i < lines.length; i++) {
             this.draw_text(lines[i], x, y);
 
             y += lineHeight;
@@ -112,10 +129,65 @@ class TextCanvas {
         this.bubble.canvas.context.strokeText(line, x, y);
     }
 
+    draw_outline_blur(line, x, y) {
+        this.bubble.canvas.context.miterLimit = 2;
+        this.bubble.canvas.context.lineJoin = 'circle';
+        this.bubble.canvas.context.strokeStyle = this.outline_blur.color;
+        this.bubble.canvas.context.shadowColor = this.outline_blur.color;
+        this.bubble.canvas.context.shadowBlur = this.outline_blur.blur_level;
+        this.bubble.canvas.context.lineWidth = this.outline_blur.size;
+        this.bubble.canvas.context.strokeText(line, x, y);
+        this.bubble.canvas.context.shadowBlur = 0;
+    }
+
     draw_text(line, x, y) {
-        this.bubble.canvas.context.fillStyle = this.color;
+        if (this.light.on) {
+            this.draw_light();
+            this.draw_shape_light();
+
+        } else {
+            this.bubble.canvas.context.fillStyle = this.color;
+        }
         this.bubble.canvas.context.fillText(line, x, y);
     }
+
+    draw_light() {
+        let gradient;
+        if (this.light.geometry_type === 'rect') {
+            // lembrete para depois, considere o margin também para que muito longe da palavras.
+            const width = this.rect.x2 - this.rect.x1;
+            const height = this.rect.y2 - this.rect.y1;
+
+            if (this.light.gradient_direction === 'left') {
+                gradient = this.bubble.canvas.context.createLinearGradient(this.rect.x1, this.rect.y1 + height / 2, this.rect.x1 + this.light.width, this.rect.y1 + height / 2);
+            } else if (this.light.gradient_direction === 'top') {
+                gradient = this.bubble.canvas.context.createLinearGradient(this.rect.x1 + width / 2, this.rect.y1, this.rect.x1 + width / 2, this.rect.y1 + this.light.height);
+            } else if (this.light.gradient_direction === 'bottom') {
+                gradient = this.bubble.canvas.context.createLinearGradient(this.rect.x1 + width / 2, this.rect.y2, this.rect.x1 + width / 2, this.rect.y2 - this.light.height);
+            } else if (this.light.gradient_direction === 'right') {
+                gradient = this.bubble.canvas.context.createLinearGradient(this.rect.x2, this.rect.y1 + height / 2, this.rect.x2 - this.light.width, this.rect.y1 + height / 2);
+            }
+        } else {
+            gradient = this.bubble.canvas.context.createRadialGradient(this.light.x, this.light.y, 0, this.light.x, this.light.y, this.light.radius);
+        }
+        gradient.addColorStop(0, this.light.color);
+        gradient.addColorStop(1, this.color);
+
+        // Set the fill style to the gradient
+        this.bubble.canvas.context.fillStyle = gradient;
+    }
+
+    draw_shape_light() {
+        if (this.light.show) {
+            if (this.light.geometry_type === 'circle') {
+                this.bubble.canvas.context.strokeStyle = '#000000';
+                this.bubble.canvas.context.beginPath();
+                this.bubble.canvas.context.arc(this.light.x, this.light.y, this.light.radius, 0, 2 * Math.PI);
+                this.bubble.canvas.context.stroke();
+            }
+        }
+    }
+
 
     set_text(text) {
         this.text_original = text;
@@ -145,20 +217,26 @@ class TextCanvas {
         this.bubble.canvas.draw();
     }
 
-    set_color_outline(color) {
-        this.outline.color = color;
+    set_outline(name, value) {
+        const number = parseInt(value);
+        if (isNaN(number)) {
+            this.outline[name] = value;
+        } else {
+            this.outline[name] = number;
+        }
         this.bubble.canvas.draw();
     }
 
-    set_outline(on) {
-        this.outline.on = on;
+    set_outline_blur(name, value) {
+        const number = parseInt(value);
+        if (isNaN(number)) {
+            this.outline_blur[name] = value;
+        } else {
+            this.outline_blur[name] = number;
+        }
         this.bubble.canvas.draw();
     }
 
-    set_size_outline(size) {
-        this.outline.size = size;
-        this.bubble.canvas.draw();
-    }
 
     set_bold(on) {
         this.bold = on;
@@ -217,7 +295,12 @@ class TextCanvas {
     }
 
     set_light(name, value) {
-        this.light[name] = value;
+        const number = parseInt(value);
+        if (isNaN(number)) {
+            this.light[name] = value;
+        } else {
+            this.light[name] = number;
+        }
         this.bubble.canvas.draw();
     }
 
@@ -231,6 +314,7 @@ class TextCanvas {
             font_size: this.font_size * percent,
             bubble: bubble,
             outline: { ...this.outline, size: this.outline.size * percent },
+            outline_blur: { ...this.outline_blur, blur_level: this.outline_blur.blur_level * percent, size: this.outline_blur.size * percent },
             bold: this.bold,
             italic: this.italic,
             color: this.color,
@@ -238,6 +322,7 @@ class TextCanvas {
             letter_spacing: this.letter_spacing,
             degrees: this.degrees,
             line_height: this.line_height,
+            light: this.light,
             margin: {
                 top: this.margin.top * percent,
                 top: this.margin.top * percent,
@@ -449,7 +534,7 @@ class TextCanvas {
         outlineColorInput.value = this.outline.color;
 
         outlineColorInput.addEventListener('input', (evt) => {
-            this.set_color_outline(evt.target.value);
+            this.set_outline('color', evt.target.value);
         });
 
         const outlineSizeInput = document.createElement('input');
@@ -458,7 +543,7 @@ class TextCanvas {
         outlineSizeInput.value = this.outline.size;
 
         outlineSizeInput.addEventListener('input', (evt) => {
-            this.set_size_outline(evt.target.value);
+            this.set_outline('size', evt.target.value);
         });
 
         const outlineCheckbox = document.createElement('input');
@@ -468,7 +553,7 @@ class TextCanvas {
         outlineCheckbox.value = this.outline.on;
 
         outlineCheckbox.addEventListener('input', (evt) => {
-            this.set_outline(evt.target.checked);
+            this.set_outline('on', evt.target.checked);
         });
 
         outlineDiv.appendChild(outlineLabel);
@@ -477,6 +562,59 @@ class TextCanvas {
         outlineDiv.appendChild(outlineCheckbox);
 
         container.appendChild(outlineDiv);
+
+        const outlineBlurDiv = document.createElement('div');
+        outlineBlurDiv.className = 'flex items-center mb-2 gap-1';
+
+        const outlineBlurLabel = document.createElement('label');
+        outlineBlurLabel.className = 'text-xs font-medium text-gray-900';
+        outlineBlurLabel.setAttribute('for', 'outline-blur-text');
+        outlineBlurLabel.textContent = 'Outline Blur';
+
+        const outlineBlurColorInput = document.createElement('input');
+        outlineBlurColorInput.className = 'w-10';
+        outlineBlurColorInput.type = 'color';
+        outlineBlurColorInput.value = this.outline_blur.color;
+
+        outlineBlurColorInput.addEventListener('input', (evt) => {
+            this.set_outline_blur('color', evt.target.value);
+        });
+
+        const outlineBlurSizeInput = document.createElement('input');
+        outlineBlurSizeInput.className = 'text-xs w-8 p-1 text-gray-900 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500';
+        outlineBlurSizeInput.type = 'number';
+        outlineBlurSizeInput.value = this.outline_blur.size;
+
+        outlineBlurSizeInput.addEventListener('input', (evt) => {
+            this.set_outline_blur('size', evt.target.value);
+        });
+
+        const outlineBlurLevelInput = document.createElement('input');
+        outlineBlurLevelInput.className = 'text-xs w-8 p-1 text-gray-900 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500';
+        outlineBlurLevelInput.type = 'number';
+        outlineBlurLevelInput.value = this.outline_blur.blur_level;
+
+        outlineBlurLevelInput.addEventListener('input', (evt) => {
+            this.set_outline_blur('blur_level', evt.target.value);
+        });
+
+        const outlineBlurCheckbox = document.createElement('input');
+        outlineBlurCheckbox.className = 'w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500';
+        outlineBlurCheckbox.type = 'checkbox';
+        outlineBlurCheckbox.id = 'outlineBlur_checkbox';
+        outlineBlurCheckbox.value = this.outline_blur.on;
+
+        outlineBlurCheckbox.addEventListener('input', (evt) => {
+            this.set_outline_blur('on', evt.target.checked);
+        });
+
+        outlineBlurDiv.appendChild(outlineBlurLabel);
+        outlineBlurDiv.appendChild(outlineBlurColorInput);
+        outlineBlurDiv.appendChild(outlineBlurSizeInput);
+        outlineBlurDiv.appendChild(outlineBlurLevelInput);
+        outlineBlurDiv.appendChild(outlineBlurCheckbox);
+
+        container.appendChild(outlineBlurDiv);
 
         const alignment_div = document.createElement('div');
         alignment_div.className = 'flex gap-1 mb-2';
@@ -616,7 +754,7 @@ class TextCanvas {
         });
 
         const dropdown_content = document.createElement('div');
-        dropdown_content.className = 'grid gap-2 mb-6 grid-cols-2';
+        dropdown_content.className = 'grid gap-2 grid-cols-2 select-none pt-2';
 
         dropdown_light.appendChild(dropdown_content);
 
@@ -635,6 +773,7 @@ class TextCanvas {
             input.className = 'w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500';
             input.id = item;
             input.type = 'checkbox';
+            input.checked = this.light[item];
 
             input.addEventListener('input', (evt) => {
                 this.set_light(evt.target.id, evt.target.checked);
@@ -648,20 +787,31 @@ class TextCanvas {
 
         const content_range = [
             {
-                name: 'horizon'
+                name: 'x',
+                value: this.light.x,
             },
             {
-                name: 'vertical'
+                name: 'y',
+                value: this.light.y,
             },
             {
-                name: 'gradient_intensity'
+                name: 'width',
+                value: this.light.width,
             },
             {
-                name: 'size',
-                max: 1000,
-                step: 1
+                name: 'height',
+                value: this.light.height,
+            },
+            {
+                name: 'radius',
+                value: this.light.radius,
             }
         ]
+
+        const light_number_div = document.createElement('div');
+        light_number_div.className = 'flex col-span-2 justify-between';
+
+        dropdown_content.appendChild(light_number_div);
 
         content_range.forEach((content) => {
             const div = document.createElement('div');
@@ -672,13 +822,10 @@ class TextCanvas {
             label.for = content.name;
 
             const input = document.createElement('input');
-            input.className = 'w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer';
+            input.className = 'w-8 p-1 text-xs text-gray-900 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500';
             input.id = content.name;
-            input.type = 'range';
-            input.min = 0;
-            input.max = content.max || 1;
-            input.step = content.step || 0.01;
-            input.value = this.light[content];
+            input.type = 'number';
+            input.value = content.value;
 
             input.addEventListener('input', (evt) => {
                 this.set_light(evt.target.id, evt.target.value);
@@ -687,7 +834,7 @@ class TextCanvas {
             div.appendChild(label);
             div.appendChild(input);
 
-            dropdown_content.appendChild(div);
+            light_number_div.appendChild(div);
         });
 
         const geometry_type = document.createElement('div');
@@ -744,6 +891,7 @@ class TextCanvas {
         input_color_light.className = 'w-full text-gray-900 border border-gray-300 focus:ring-blue-500 focus:border-blue-500';
         input_color_light.id = 'color_light';
         input_color_light.type = 'color';
+        input_color_light.value = this.light.color;
 
         input_color_light.addEventListener('input', (evt) => {
             this.set_light('color', evt.target.value);
