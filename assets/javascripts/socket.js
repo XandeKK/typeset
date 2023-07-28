@@ -4,11 +4,13 @@ class Socket {
         this.start = document.getElementById('start');
         this.end = document.getElementById('end');
         this.type_style = document.getElementById('type_style');
+        this.load_file = document.getElementById('load_file');
         this.submit = document.getElementById('submit');
         this.download = document.getElementById('download');
         this.canvas_handler = options.canvas_handler;
         this.socket = new WebSocket('ws://localhost:8080');
         this.handler = {
+            load: options.load || this.load,
             boxs: options.get_boxs || this.get_boxs,
             finished: options.finish || this.finish,
             error: options.get_error || this.get_error,
@@ -45,7 +47,8 @@ class Socket {
                 this.socket.send(JSON.stringify({
                     type: 'save',
                     filename: filename,
-                    data: reader.result
+                    data: reader.result,
+                    json: JSON.stringify(this.canvas_handler.canvas.objects)
                 }));
             };
             reader.readAsDataURL(file);
@@ -72,11 +75,16 @@ class Socket {
                 path: this.path.value,
                 start: Number(this.start.value),
                 end: Number(this.end.value),
-                type_style: this.type_style.value
+                type_style: this.type_style.value,
+                load: this.load_file.checked
 
             }
             this.socket.send(JSON.stringify(message));
         });
+    }
+
+    load(msg) {
+        Alert.alert("load", 'info');
     }
 
     get_boxs(msg) {
@@ -88,10 +96,10 @@ class Socket {
     }
 
     get_error(msg) {
-        Alert.alert(msg.message, 'danger');
+        Alert.alert(JSON.stringify(msg.message), 'danger');
     }
 
     get_message(msg) {
-        Alert.alert(msg.message, 'info');
+        Alert.alert(JSON.stringify(msg.message), 'info');
     }
 }

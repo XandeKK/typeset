@@ -1,5 +1,5 @@
 class BubbleCanvas {
-	constructor(x, y, width, height, canvas, show=true) {
+	constructor(x=0, y=0, width=0, height=0, canvas=null, show=true) {
 		this.rect = {
 			x1: x,
 			x2: x + width,
@@ -12,6 +12,26 @@ class BubbleCanvas {
 		this.over = false;
 		this.canvas = canvas;
 		this.show = show;
+	}
+
+	toJSON() {
+		return {
+			name: this.constructor.name,
+			rect: this.rect,
+			width: this.width,
+			height: this.height,
+			over: this.over,
+			show: this.show
+		};
+	}
+
+	load(data, canvas) {
+		this.rect = data.rect;
+		this.width = data.width;
+		this.height = data.height;
+		this.over = data.over;
+		this.canvas = canvas;
+		this.show = data.show;
 	}
 
 	draw() {

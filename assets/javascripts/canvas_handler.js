@@ -3,7 +3,7 @@ class CanvasHandler {
         this.viewer = document.getElementById('viewer');
         this.canvas = new Canvas("canvas", viewer.offsetWidth / 2, viewer.offsetHeight);
         this.drawer_bubble = new DrawBubble(this.canvas);
-        this.socket = new Socket({get_boxs: this.get_boxs.bind(this), canvas_handler: this});
+        this.socket = new Socket({get_boxs: this.get_boxs.bind(this), load: this.load.bind(this), canvas_handler: this});
         this.image_handler = new ImageHandler(this);
         this.list_text = new ListText(this.canvas);
 
@@ -16,6 +16,28 @@ class CanvasHandler {
     add_event() {
         document.getElementById('back_image').addEventListener('click', this.back.bind(this));
         document.getElementById('next_image').addEventListener('click', this.next.bind(this));
+    }
+
+    load(msg) {
+        const objects = JSON.parse(msg.objects);
+        const filename = objects[0].filename;
+        fetch(filename)
+            .then(response => response.blob())
+            .then(blob => {
+                const img = new Image();
+                img.src = URL.createObjectURL(blob);
+                img.onload = () => {
+                    this.images.push({
+                        path_with_filename: msg.path,
+                        type_style: msg.type_style,
+                        filename: filename,
+                        loaded: true,
+                        objects: objects,
+                        img: img
+                    });
+                    this.image_added_loaded();
+                }
+            });
     }
 
     get_boxs(msg) {
@@ -36,6 +58,44 @@ class CanvasHandler {
                 this.image_added();
             }
           });
+    }
+
+    image_added_loaded() {
+        if (this.images.length == 1) {
+            this.set_image_loaded(this.images[0]);
+            this.set_texts();
+        }
+
+        if (this.images.length - 2 == this.current_index_image) {
+            this.set_mode_button('next_image', true);
+        }
+    }
+
+    set_image_loaded(data) {
+        const image_canvas = new ImageCanvas(data, this.canvas);
+        image_canvas.percent = data.objects[0].percent;
+        this.canvas.clear_objects();
+        this.canvas.add_object(image_canvas);
+
+        let bubble = null;
+        for (var i = 1; i < data.objects.length; i++) {
+            const object = data.objects[i];
+            if (object.name === 'BubbleCanvas') {
+                bubble = new BubbleCanvas();
+                bubble.rect = object.rect;
+                bubble.width = object.width;
+                bubble.height = object.height;
+                bubble.over = object.over;
+                bubble.canvas = this.canvas;
+                bubble.show = object.show;
+                this.canvas.add_object(bubble);
+            } else if (object.name === 'TextCanvas') {
+                const text = new TextCanvas({ ...object, text: object.text_original, bubble: bubble, rect: bubble.rect });
+                bubble.set_object_text(text);
+                bubble = null;
+                this.canvas.add_object(text);
+            }
+        }
     }
 
     image_added() {
@@ -97,7 +157,11 @@ class CanvasHandler {
             this.set_mode_button('next_image', true);
         }
 
-        this.set_image(this.images[this.current_index_image]);
+        if (this.images[this.current_index_image].loaded) {
+            this.set_image_loaded(this.images[this.current_index_image]);
+        } else {
+            this.set_image(this.images[this.current_index_image]);
+        }
     }
 
     next() {
@@ -113,7 +177,11 @@ class CanvasHandler {
             this.set_mode_button('back_image', true);
         }
 
-        this.set_image(this.images[this.current_index_image]);
+        if (this.images[this.current_index_image].loaded) {
+            this.set_image_loaded(this.images[this.current_index_image]);
+        } else {
+            this.set_image(this.images[this.current_index_image]);
+        }
     }
 }
 

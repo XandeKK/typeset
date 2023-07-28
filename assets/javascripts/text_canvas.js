@@ -45,6 +45,46 @@ class TextCanvas {
         }
     }
 
+    toJSON() {
+        return {
+            name: this.constructor.name,
+            text_original: this.text_original,
+            font: this.font,
+            font_size: this.font_size,
+            rect: this.rect,
+            outline: this.outline,
+            outline_blur: this.outline_blur,
+            bold: this.bold,
+            italic: this.italic,
+            color: this.color,
+            alignment_text: this.alignment_text,
+            letter_spacing: this.letter_spacing,
+            degrees: this.degrees,
+            line_height: this.line_height,
+            margin: this.margin,
+            light: this.light,
+        };
+    }
+
+    load(data, bubble) {
+        this.text_original = data.text_original;
+        this.font = data.font;
+        this.font_size = data.font_size;
+        this.bubble = bubble;
+        this.rect = data.rect;
+        this.outline = data.outline;
+        this.outline_blur = data.outline_blur;
+        this.bold = data.bold;
+        this.italic = data.italic;
+        this.color = data.color;
+        this.alignment_text = data.alignment_text;
+        this.letter_spacing = data.letter_spacing;
+        this.degrees = data.degrees;
+        this.line_height = data.line_height;
+        this.margin = data.margin;
+        this.light = data.light;
+    }
+
     draw() {
         this.bubble.canvas.context.font = `${this.get_bold()} ${this.get_italic()} ${this.font_size}px ${this.font}`;
 
@@ -322,7 +362,14 @@ class TextCanvas {
             letter_spacing: this.letter_spacing,
             degrees: this.degrees,
             line_height: this.line_height,
-            light: this.light,
+            light: { 
+                ...this.light,
+                x: this.light.x * percent,
+                y: this.light.y  * percent,
+                width: this.light.width * percent,
+                height: this.light.height * percent,
+                radius: this.light.radius * percent
+            },
             margin: {
                 top: this.margin.top * percent,
                 top: this.margin.top * percent,
