@@ -87,7 +87,6 @@ class IA:
                 time.sleep(0.5)
             else:
                 img = cv2.imread(file)
-                print(type_style)
                 if type_style == 'manga':
                     results = self.manga(img)
                 elif type_style == 'manhwa':
