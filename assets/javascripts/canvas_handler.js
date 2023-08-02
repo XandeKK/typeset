@@ -16,6 +16,7 @@ class CanvasHandler {
     add_event() {
         document.getElementById('back_image').addEventListener('click', this.back.bind(this));
         document.getElementById('next_image').addEventListener('click', this.next.bind(this));
+        document.getElementById('toggle_img').addEventListener('click', this.toggle_img);
     }
 
     load(msg) {
@@ -28,7 +29,9 @@ class CanvasHandler {
                 img.src = URL.createObjectURL(blob);
                 img.onload = () => {
                     this.images.push({
+                        raw: msg.path.replace(/.*cleaned\//, 'raw/'),
                         path_with_filename: msg.path,
+                        path_to_save: msg.path.replace('cleaned/', ''),
                         type_style: msg.type_style,
                         filename: filename,
                         loaded: true,
@@ -41,7 +44,7 @@ class CanvasHandler {
     }
 
     get_boxs(msg) {
-        const filename = msg.filename.replace(/.*raw\//, '');
+        const filename = msg.filename.replace(/.*raw\//, 'cleaned/');
         fetch(filename)
           .then(response => response.blob())
           .then(blob => {
@@ -49,7 +52,9 @@ class CanvasHandler {
             img.src = URL.createObjectURL(blob);
             img.onload = () => {
                 this.images.push({
-                    path_with_filename: msg.filename.replace('raw/', ''),
+                    raw: msg.filename.replace(/.*raw\//, 'raw/'),
+                    path_with_filename: msg.filename.replace('raw/', 'cleaned/'),
+                    path_to_save: msg.filename.replace('raw/', ''),
                     filename: filename,
                     boxs: msg.boxs,
                     type_style: msg.type_style,
@@ -71,11 +76,28 @@ class CanvasHandler {
         }
     }
 
+    set_image_raw(data) {
+        const img_raw = document.getElementById('raw');
+        img_raw.src = data.raw;
+        img_raw.width = this.canvas.width;
+        img_raw.height = this.canvas.height;
+    }
+
+    toggle_img() {
+        const raw_div = document.getElementById('raw_div');
+        if (raw_div.classList.contains('hidden')) {
+            raw_div.classList.remove('hidden');
+        } else {
+            raw_div.classList.add('hidden');
+        }
+    }
+
     set_image_loaded(data) {
         const image_canvas = new ImageCanvas(data, this.canvas);
         image_canvas.percent = data.objects[0].percent;
         this.canvas.clear_objects();
         this.canvas.add_object(image_canvas);
+        this.set_image_raw(data);
 
         let bubble = null;
         for (var i = 1; i < data.objects.length; i++) {
@@ -113,6 +135,7 @@ class CanvasHandler {
         const image_canvas = new ImageCanvas(data, this.canvas);
         this.canvas.clear_objects();
         this.canvas.add_object(image_canvas);
+        this.set_image_raw(data);
 
         data.boxs.forEach((box) => {
             const bubble = new BubbleCanvas(box.x1 * image_canvas.percent, box.y1 * image_canvas.percent, (box.x2 - box.x1) * image_canvas.percent, (box.y2 - box.y1) * image_canvas.percent, this.canvas);

@@ -64,7 +64,8 @@ class Handler:
                 elif os.path.exists(png_path):
                     files.append(png_path)
 
-        files = sorted(files)
+        files = sorted(files, key=lambda x: int(os.path.splitext(os.path.basename(x))[0]))
+        # files = sorted(files)
         self.ia.predict(files, message["type_style"])
         time.sleep(1)
         server.send({'type': 'finished'})

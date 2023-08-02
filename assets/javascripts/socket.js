@@ -23,7 +23,7 @@ class Socket {
     }
 
     upload_image() {
-        const filename = this.canvas_handler.images[this.canvas_handler.current_index_image].path_with_filename;
+        const filename = this.canvas_handler.images[this.canvas_handler.current_index_image].path_to_save;
         if (filename === undefined || filename === null) {
             Alert.alert("you can't save without image", 'warning');
             return;

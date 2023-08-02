@@ -51,7 +51,7 @@ module.exports = function(serveStatic) {
                     }
                 });
             } else {
-                serveStatic(path.join(msg.path + "/cleaned"));
+                serveStatic(path.join(msg.path));
                 if (msg.load) {
                     const files = glob_json(msg);
                     files.forEach((file)=> {
