@@ -167,7 +167,18 @@ class CanvasHandler {
         }
     }
 
+    scroll() {
+        setTimeout(()=> {
+            window.scrollTo({
+              top: 0,
+              left: 0,
+              behavior: "smooth",
+            });
+        }, 500);
+    }
+
     back() {
+        this.scroll();
         this.current_index_image--;
 
         if (this.current_index_image < 0) {
@@ -188,6 +199,7 @@ class CanvasHandler {
     }
 
     next() {
+        this.scroll()
         this.current_index_image++;
 
         if (this.current_index_image > this.images.length) {
