@@ -26,8 +26,13 @@ class DrawBubble {
         this.canvas.canvas_element.addEventListener('mouseup', () => {
             this.drag = false;
             if (Math.abs(this.rect.w) > this.minDistance && Math.abs(this.rect.h) > this.minDistance) {
+                let text = null;
                 const bubble = new BubbleCanvas(this.rect.startX, this.rect.startY, this.rect.w, this.rect.h, this.canvas);
-                const text = new TextCanvas({ text: "", font: 'CCWildWords-Regular', font_size: 11, bubble: bubble });
+                if (document.getElementById('type_style').value === 'manga') {
+                    text = new TextCanvas({ text: "", font: 'CCWildWords-Regular', font_size: 11, bubble: bubble });
+                } else {
+                    text = new TextCanvas({ text: "", font: 'CCMightyMouth-Regular', font_size: 25, bubble: bubble });
+                }
                 bubble.set_object_text(text);
                 this.canvas.add_object(bubble);
                 this.canvas.add_object(text);

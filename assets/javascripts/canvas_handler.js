@@ -22,7 +22,7 @@ class CanvasHandler {
     load(msg) {
         const objects = JSON.parse(msg.objects);
         const filename = objects[0].filename;
-        fetch(filename)
+        fetch(filename + '?cache=' + Math.random())
             .then(response => response.blob())
             .then(blob => {
                 const img = new Image();
@@ -45,7 +45,7 @@ class CanvasHandler {
 
     get_boxs(msg) {
         const filename = msg.filename.replace(/.*raw\//, 'cleaned/');
-        fetch(filename)
+        fetch(filename + '?cache=' + Math.random())
           .then(response => response.blob())
           .then(blob => {
             const img = new Image();
@@ -84,11 +84,15 @@ class CanvasHandler {
     }
 
     toggle_img() {
-        const raw_div = document.getElementById('raw_div');
-        if (raw_div.classList.contains('hidden')) {
-            raw_div.classList.remove('hidden');
+        const raw = document.getElementById('raw');
+        const canvas = document.getElementById('canvas');
+
+        if (raw.classList.contains('hidden')) {
+            raw.classList.remove('hidden');
+            canvas.classList.add('hidden');
         } else {
-            raw_div.classList.add('hidden');
+            raw.classList.add('hidden');
+            canvas.classList.remove('hidden');
         }
     }
 
@@ -138,8 +142,13 @@ class CanvasHandler {
         this.set_image_raw(data);
 
         data.boxs.forEach((box) => {
+            let text = null;
             const bubble = new BubbleCanvas(box.x1 * image_canvas.percent, box.y1 * image_canvas.percent, (box.x2 - box.x1) * image_canvas.percent, (box.y2 - box.y1) * image_canvas.percent, this.canvas);
-            const text = new TextCanvas({ text: "", font: 'CCWildWords-Regular', font_size: 11, bubble: bubble });
+            if (data.type_style === 'manga') {
+                text = new TextCanvas({ text: "", font: 'CCWildWords-Regular', font_size: 11, bubble: bubble });
+            } else {
+                text = new TextCanvas({ text: "", font: 'CCMightyMouth-Regular', font_size: 25, bubble: bubble });
+            }
             bubble.set_object_text(text);
             this.canvas.add_object(bubble);
             this.canvas.add_object(text);

@@ -70,7 +70,10 @@ class Canvas {
     }
 
     clear_objects() {
-        this.objects = [];
+        for (var i = 0; i < this.objects.length; i++) {
+            delete this.objects[i]
+        }
+        this.objects.length = 0;
     }
 
     delete_object(object) {

@@ -21,7 +21,15 @@ function glob_json(msg) {
         }
     }
 
-    files.sort((a,b)=> a - b);
+    files.sort((a,b) => {
+        a_split  = a.split('/');
+        a = a_split[a_split.length - 1];
+        a = a.replace('.json', '');
+        b_split  = b.split('/');
+        b = b_split[b_split.length - 1];
+        b = b.replace('.json', '');
+        return a - b;
+    });
 
     return files;
 }
@@ -54,7 +62,8 @@ module.exports = function(serveStatic) {
                 serveStatic(path.join(msg.path));
                 if (msg.load) {
                     const files = glob_json(msg);
-                    files.forEach((file)=> {
+                    for (var i = 0; i < files.length; i++) {
+                        const file = files[i];
                         const objects = fs.readFileSync(file, 'utf8');
                         const objects_parsed = JSON.parse(objects);
                         setTimeout(()=> {
@@ -65,7 +74,7 @@ module.exports = function(serveStatic) {
                                 type_style: msg.type_style
                             }));
                         }, 100);
-                    });
+                    }
                 } else {
                     client.write(message);
                 }
