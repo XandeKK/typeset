@@ -230,3 +230,7 @@ class CanvasHandler {
 }
 
 const canvas_handler = new CanvasHandler();
+window.addEventListener('beforeunload', function (e) {
+    e.preventDefault();
+    e.returnValue = '';
+});
