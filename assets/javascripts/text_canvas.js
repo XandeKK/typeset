@@ -439,7 +439,7 @@ class TextCanvas {
         fontsTextInput.value = this.font;
 
         const fontAutocompleteResults = document.createElement('div');
-        fontAutocompleteResults.className = 'absolute top-10 left-0 w-full bg-white border rounded shadow-lg z-10 h-32 hidden overflow-auto';
+        fontAutocompleteResults.className = 'absolute top-10 left-0 w-full bg-white border rounded shadow-lg z-10 h-80 hidden overflow-auto';
 
         fontsDiv.appendChild(fontAutocompleteResults);
 
