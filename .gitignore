@@ -1,4 +1,4 @@
-python/venv
-python/cache.pickle
+venv
+cache.pickle
 node_modules
-assets/stylesheets/application.css
+static/stylesheets/application.css
