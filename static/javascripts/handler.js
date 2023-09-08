@@ -17,7 +17,7 @@ class Handler {
 	events() {
 		document.getElementById('previous').addEventListener('click', this.previous.bind(this));
 		document.getElementById('next').addEventListener('click', this.next.bind(this));
-		document.getElementById('switch_img').addEventListener('click', this.switch_img);
+		// document.getElementById('switch_img').addEventListener('click', this.switch_img);
 	}
 
 	switch_img() {
