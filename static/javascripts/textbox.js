@@ -1,5 +1,5 @@
 fabric.CustomTextbox = new fabric.util.createClass(fabric.Object, {
-    objectCaching: false,
+    minCacheSideLimit: 1000,
     lockMovementX: true,
     lockMovementY: true,
     lockScalingX: true,
@@ -43,6 +43,10 @@ fabric.CustomTextbox = new fabric.util.createClass(fabric.Object, {
         this.cacheProperties = [
             'text',
             'styles',
+            'fill',
+            'font',
+            'fontSize',
+            'textAlign',
             'marginTop',
             'marginBottom',
             'marginLeft',
