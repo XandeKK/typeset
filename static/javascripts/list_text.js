@@ -9,7 +9,7 @@ class ListText {
 
     events() {
         document.addEventListener('keydown', (evt)=> {
-            if (evt.target !== document.body) return; // this is a crude solution, but the only one I can think of
+            if (evt.target !== document.body && !evt.key?.startsWith('000')) return; // this is a crude solution, but the only one I can think of
             if (this.canvas.getActiveObject() && evt.key == 'Enter') {
                 if (this.current_line >= this.texts.length) return;
 

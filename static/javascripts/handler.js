@@ -5,7 +5,7 @@ class Handler {
 		this.socket = new Socket([
 			{name: 'boxs', callback: this.get_work.bind(this)},
 			{name: 'load', callback: this.load.bind(this)},
-		], this.load_text.bind(this));
+			], this.load_text.bind(this));
 		this.current_index_image = 0;
 		this.images = [];
 		this.list_text = new ListText(this.fabric);
@@ -17,52 +17,52 @@ class Handler {
 	events() {
 		document.getElementById('previous').addEventListener('click', this.previous.bind(this));
 		document.getElementById('next').addEventListener('click', this.next.bind(this));
-		// document.getElementById('switch_img').addEventListener('click', this.switch_img);
+		document.getElementById('switch_img').addEventListener('click', this.switch_img);
 	}
 
 	switch_img() {
 		const raw = document.getElementById('raw');
-        const canvas = document.querySelector('.canvas-container');
+		const canvas = document.querySelector('.canvas-container');
 
-        if (raw.classList.contains('hidden')) {
-            raw.classList.remove('hidden');
-            canvas.classList.add('hidden');
-        } else {
-            raw.classList.add('hidden');
-            canvas.classList.remove('hidden');
-        }
+		if (raw.classList.contains('hidden')) {
+			raw.classList.remove('hidden');
+			canvas.classList.add('hidden');
+		} else {
+			raw.classList.add('hidden');
+			canvas.classList.remove('hidden');
+		}
 	}
 
 	load_text(path) {
 		fetch(`file?path=${path}/Tradução`)
-		  .then(response => response.text())
-		  .then(data => {
-		    this.list_text.set_texts(data);
+		.then(response => response.text())
+		.then(data => {
+			this.list_text.set_texts(data);
 		});
 	}
 
 	scroll_to_top() {
-        setTimeout(()=> {
-            document.getElementById('body_canvas').scrollTo({
-              top: 0,
-              left: 0,
-              behavior: "smooth",
-            });
-        }, 500);
-    }
+		setTimeout(()=> {
+			document.getElementById('body_canvas').scrollTo({
+				top: 0,
+				left: 0,
+				behavior: "smooth",
+			});
+		}, 500);
+	}
 
-    set_mode_button(id, visible) {
-    	const element = document.getElementById(id);
-        if (visible) {
-            element.classList.remove('bg-purple-300', 'cursor-not-allowed');
-            element.classList.add('bg-purple-700', 'hover:bg-purple-800', 'cursor-pointer');
-            element.disabled = false;
-        } else {
-            element.classList.remove('bg-purple-700', 'hover:bg-purple-800', 'cursor-pointer');
-            element.classList.add('bg-purple-300', 'cursor-not-allowed');
-            element.disabled = true;
-        }
-    }
+	set_mode_button(id, visible) {
+		const element = document.getElementById(id);
+		if (visible) {
+			element.classList.remove('bg-purple-300', 'cursor-not-allowed');
+			element.classList.add('bg-purple-700', 'hover:bg-purple-800', 'cursor-pointer');
+			element.disabled = false;
+		} else {
+			element.classList.remove('bg-purple-700', 'hover:bg-purple-800', 'cursor-pointer');
+			element.classList.add('bg-purple-300', 'cursor-not-allowed');
+			element.disabled = true;
+		}
+	}
 
 	previous() {
 		if (!window.can_pass) return;
@@ -70,19 +70,19 @@ class Handler {
 		this.scroll_to_top();
 		this.current_index_image--;
 
-        if (this.current_index_image < 0) {
-            this.current_index_image++;
-            return;
-        } else if (this.current_index_image == 0) {
-            this.set_mode_button('previous', false);
-        }
+		if (this.current_index_image < 0) {
+			this.current_index_image++;
+			return;
+		} else if (this.current_index_image == 0) {
+			this.set_mode_button('previous', false);
+		}
 
-        if (this.current_index_image < this.images.length) {
-            this.set_mode_button('next', true);
-        }
+		if (this.current_index_image < this.images.length) {
+			this.set_mode_button('next', true);
+		}
 
-        this.images[this.current_index_image + 1].obj = JSON.stringify(this.fabric)
-        this.set_objects(this.images[this.current_index_image]);
+		this.images[this.current_index_image + 1].obj = JSON.stringify(this.fabric)
+		this.set_objects(this.images[this.current_index_image]);
 	}
 
 	next() {
@@ -91,19 +91,19 @@ class Handler {
 		this.scroll_to_top();
 		this.current_index_image++;
 
-        if (this.current_index_image > this.images.length) {
-            this.current_index_image--;
-            return;
-        } else if (this.current_index_image == this.images.length - 1) {
-            this.set_mode_button('next', false);
-        }
+		if (this.current_index_image > this.images.length) {
+			this.current_index_image--;
+			return;
+		} else if (this.current_index_image == this.images.length - 1) {
+			this.set_mode_button('next', false);
+		}
 
-        if (this.current_index_image > 0) {
-            this.set_mode_button('previous', true);
-        }
+		if (this.current_index_image > 0) {
+			this.set_mode_button('previous', true);
+		}
 
-        this.images[this.current_index_image - 1].obj = JSON.stringify(this.fabric)
-        this.set_objects(this.images[this.current_index_image]);
+		this.images[this.current_index_image - 1].obj = JSON.stringify(this.fabric)
+		this.set_objects(this.images[this.current_index_image]);
 	}
 
 	get_work(msg) {
@@ -141,23 +141,40 @@ class Handler {
 		}
 
 		if (this.images.length - 2 == this.current_index_image) {
-            this.set_mode_button('next', true);
-        }
+			this.set_mode_button('next', true);
+		}
 	}
 
 	set_background_image(data, callback) {
 		const percent = this.fabric.width / data.img.width;
-		const img = new fabric.Image(data.img, {
-			scaleX: percent,
-			scaleY: percent,
+		fabric.util.loadImage(data.img, (img)=> {
+			const object = new fabric.Image(img, {
+				scaleX: percent,
+				scaleY: percent
+			});
+			this.fabric.setHeight(data.img.height * percent);
+			this.fabric.setBackgroundImage(object, this.fabric.renderAll.bind(this.fabric));
+
+			callback();
+
+			const raw_image = document.getElementById('raw');
+			raw_image.src = data.img.src.replace('cleaned', 'raw');
+			raw_image.width = this.fabric.width;
+			raw_image.height
 		});
-    	this.fabric.setHeight(data.img.height * percent);
-	   	this.fabric.setBackgroundImage(img, this.fabric.renderAll.bind(this.fabric));
-	   	callback();
-	   	const raw_image = document.getElementById('raw');
-	   	raw_image.src = data.img.src.replace('cleaned', 'raw');
-	   	raw_image.width = data.img.width * percent;
-	   	raw_image.height = data.img.height * percent;
+
+		// I left this in case loadImage has a problem, then use it again
+		// const img = new fabric.Image(data.img, {
+		// 	scaleX: percent,
+		// 	scaleY: percent,
+		// });
+    	// this.fabric.setHeight(data.img.height * percent);
+	   	// this.fabric.setBackgroundImage(img, this.fabric.renderAll.bind(this.fabric));
+	   	// callback();
+	   	// const raw_image = document.getElementById('raw');
+	   	// raw_image.src = data.img.src.replace('cleaned', 'raw');
+	   	// raw_image.width = this.fabric.width;
+	   	// raw_image.height = this.fabric.height;
 
 	   	// I left it here, in case there is a problem with the code above, use it
 	   	// fabric.Image.fromURL(`file?path=${data.filename}`, (img)=> {
@@ -182,24 +199,24 @@ class Handler {
 			this.set_background_image(data, ()=> {
 				data.boxs.forEach((box) => {
 					const bubble = new BubbleCanvas(this.fabric, {
-		                left: box.x1 * this.fabric.backgroundImage.get('scaleX'),
-		                top: box.y1 * this.fabric.backgroundImage.get('scaleX'),
-		                width: (box.x2 - box.x1) * this.fabric.backgroundImage.get('scaleX'),
-		                height: (box.y2 - box.y1) * this.fabric.backgroundImage.get('scaleX')
-		            });
-		            const text = new TextCanvas(this.fabric, {
-		                text: "",
-		                textAlign: 'center',
-		                fontSize: window.type_style === 'manga' ? 18 : 25,
-		                font: window.type_style === 'manga' ? 'CCWildWords-Regular' : 'CCMightyMouth-Regular',
-		                left: box.x1 * this.fabric.backgroundImage.get('scaleX'),
-		                top: box.y1 * this.fabric.backgroundImage.get('scaleX'),
-		                width: (box.x2 - box.x1) * this.fabric.backgroundImage.get('scaleX'),
-		                height: (box.y2 - box.y1) * this.fabric.backgroundImage.get('scaleX')
-		            })
-		            new Group(bubble, text, this.fabric);
-		        });
-		        window.can_pass = true;
+						left: box.x1 * this.fabric.backgroundImage.get('scaleX'),
+						top: box.y1 * this.fabric.backgroundImage.get('scaleX'),
+						width: (box.x2 - box.x1) * this.fabric.backgroundImage.get('scaleX'),
+						height: (box.y2 - box.y1) * this.fabric.backgroundImage.get('scaleX')
+					});
+					const text = new TextCanvas(this.fabric, {
+						text: "",
+						textAlign: 'center',
+						fontSize: window.type_style === 'manga' ? 18 : 25,
+						font: window.type_style === 'manga' ? 'CCWildWords-Regular' : 'CCMightyMouth-Regular',
+						left: box.x1 * this.fabric.backgroundImage.get('scaleX'),
+						top: box.y1 * this.fabric.backgroundImage.get('scaleX'),
+						width: (box.x2 - box.x1) * this.fabric.backgroundImage.get('scaleX'),
+						height: (box.y2 - box.y1) * this.fabric.backgroundImage.get('scaleX')
+					})
+					new Group(bubble, text, this.fabric);
+				});
+				window.can_pass = true;
 			});
 		}
 	}

@@ -5,6 +5,7 @@ class Canvas {
 			width: body_canvas.clientWidth - 15,
 			height: body_canvas.clientHeight,
 			selection: false,
+			skipTargetFind: false,
 		});
 
 		new DrawBubble(this.fabric);
@@ -24,9 +25,10 @@ class Canvas {
 	}
 
 	download() {
+		const scale = this.fabric.backgroundImage.scaleX;
+
 		this.fabric.clone((canvas)=> {
 			const img = canvas.get('backgroundImage');
-			const scale = img.get('scaleX');
 			canvas.setWidth(img.width);
 			canvas.setHeight(img.height);
 
@@ -43,29 +45,26 @@ class Canvas {
 
 		  	canvas.renderAll();
 
-		  	canvas.clone((canvas1)=> {
-				const dataURL = canvas1.toDataURL();
-				const json = JSON.stringify(this.fabric);
-				let path = img.getSrc().replace(/.*path=/, '');
-				path = path.split('/');
-				const filename = path.pop();
-				path.pop();
-				path = path.join('/');
+			const dataURL = canvas.toDataURL();
+			const json = JSON.stringify(this.fabric);
+			let path = img.getSrc().replace(/.*path=/, '');
+			path = path.split('/');
+			const filename = path.pop();
+			path.pop();
+			path = path.join('/');
 
-				const formData = new FormData();
-				formData.append('image', this.dataURLtoBlob(dataURL), filename);
-				formData.append('json_data', json);
-				formData.append('path', path);
+			const formData = new FormData();
+			formData.append('image', this.dataURLtoBlob(dataURL), filename);
+			formData.append('json_data', json);
+			formData.append('path', path);
 
-				fetch('/upload_image', {
-				    method: 'POST',
-				    body: formData
-				})
-				.then(response => response.text())
-				.then(result => Alert.alert(result, 'success'))
-				.catch(error => Alert.alert(error, 'danger'));
-		  	});
-
+			fetch('/upload_image', {
+			    method: 'POST',
+			    body: formData
+			})
+			.then(response => response.text())
+			.then(result => Alert.alert(result, 'success'))
+			.catch(error => Alert.alert(error, 'danger'));
 		});
 	}
 
