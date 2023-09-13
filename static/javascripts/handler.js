@@ -147,43 +147,17 @@ class Handler {
 
 	set_background_image(data, callback) {
 		const percent = this.fabric.width / data.img.width;
-		fabric.util.loadImage(data.img, (img)=> {
-			const object = new fabric.Image(img, {
-				scaleX: percent,
-				scaleY: percent
-			});
-			this.fabric.setHeight(data.img.height * percent);
-			this.fabric.setBackgroundImage(object, this.fabric.renderAll.bind(this.fabric));
-
-			callback();
-
-			const raw_image = document.getElementById('raw');
-			raw_image.src = data.img.src.replace('cleaned', 'raw');
-			raw_image.width = this.fabric.width;
-			raw_image.height
+		const img = new fabric.Image(data.img, {
+			scaleX: percent,
+			scaleY: percent,
 		});
-
-		// I left this in case loadImage has a problem, then use it again
-		// const img = new fabric.Image(data.img, {
-		// 	scaleX: percent,
-		// 	scaleY: percent,
-		// });
-    	// this.fabric.setHeight(data.img.height * percent);
-	   	// this.fabric.setBackgroundImage(img, this.fabric.renderAll.bind(this.fabric));
-	   	// callback();
-	   	// const raw_image = document.getElementById('raw');
-	   	// raw_image.src = data.img.src.replace('cleaned', 'raw');
-	   	// raw_image.width = this.fabric.width;
-	   	// raw_image.height = this.fabric.height;
-
-	   	// I left it here, in case there is a problem with the code above, use it
-	   	// fabric.Image.fromURL(`file?path=${data.filename}`, (img)=> {
-		// 	const percent = this.fabric.width / img.width;
-        // 	this.fabric.setHeight(img.height * percent);
-		//    	img.set({scaleX: percent, scaleY: percent});
-		//    	this.fabric.setBackgroundImage(img, this.fabric.renderAll.bind(this.fabric));
-		//    	callback();
-		// });
+    	this.fabric.setHeight(data.img.height * percent);
+	   	this.fabric.setBackgroundImage(img, this.fabric.renderAll.bind(this.fabric));
+	   	callback();
+	   	const raw_image = document.getElementById('raw');
+	   	raw_image.src = data.img.src.replace('cleaned', 'raw');
+	   	raw_image.width = this.fabric.width;
+	   	raw_image.height = this.fabric.height;
 	}
 
 	clear() {

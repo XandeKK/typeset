@@ -45,26 +45,28 @@ class Canvas {
 
 		  	canvas.renderAll();
 
-			const dataURL = canvas.toDataURL();
-			const json = JSON.stringify(this.fabric);
-			let path = img.getSrc().replace(/.*path=/, '');
-			path = path.split('/');
-			const filename = path.pop();
-			path.pop();
-			path = path.join('/');
+			canvas.clone((canvas_1)=> {
+				const dataURL = canvas_1.toDataURL();
+				const json = JSON.stringify(this.fabric);
+				let path = img.getSrc().replace(/.*path=/, '');
+				path = path.split('/');
+				const filename = path.pop();
+				path.pop();
+				path = path.join('/');
 
-			const formData = new FormData();
-			formData.append('image', this.dataURLtoBlob(dataURL), filename);
-			formData.append('json_data', json);
-			formData.append('path', path);
-
-			fetch('/upload_image', {
-			    method: 'POST',
-			    body: formData
-			})
-			.then(response => response.text())
-			.then(result => Alert.alert(result, 'success'))
-			.catch(error => Alert.alert(error, 'danger'));
+				const formData = new FormData();
+				formData.append('image', this.dataURLtoBlob(dataURL), filename);
+				formData.append('json_data', json);
+				formData.append('path', path);
+				
+				fetch('/upload_image', {
+				    method: 'POST',
+				    body: formData
+				})
+				.then(response => response.text())
+				.then(result => Alert.alert(result, 'success'))
+				.catch(error => Alert.alert(error, 'danger'));
+			});
 		});
 	}
 
@@ -93,5 +95,10 @@ class Canvas {
 				this.rect = undefined;
 			}
 		});
+
+		const raw_image = document.getElementById('raw');
+	   	raw_image.src = img.src.replace('cleaned', 'raw');
+	   	raw_image.width = this.fabric.width;
+	   	raw_image.height = this.fabric.height;
 	}
 }

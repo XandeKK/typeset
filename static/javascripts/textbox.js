@@ -74,7 +74,7 @@ fabric.CustomTextbox = new fabric.util.createClass(fabric.Object, {
             'lightY',
             'lightRadius',
             'lightFill',
-        ]
+        ];
     },
     _render: function(ctx) {
         ctx.font = `${this.bold ? 'bold' : ''} ${this.italic ? 'italic' : ''} ${this.fontSize}px ${this.font}`;
