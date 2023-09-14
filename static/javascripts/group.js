@@ -43,6 +43,11 @@ class Group {
 			this.rect.set({stroke: '#ff033e'});
 			this.text.select();
 
+			this.parent.scroll({
+                top: this.elem.offsetTop - this.parent.offsetTop,
+                behavior: "smooth",
+            })
+
 			this.elem.classList.remove('bg-white');
 			this.elem.classList.add('bg-blue-300');
 		});
@@ -63,7 +68,7 @@ class Group {
 	}
 
 	frontend() {
-		const parent = document.getElementById('layers');
+		this.parent = document.getElementById('layers');
 
 		this.elem = document.createElement('li');
 		this.elem.className = 'flex gap-1 p-1 border-b border-zinc-300 items-center bg-white hover:bg-zinc-300 cursor-pointer';
@@ -97,6 +102,6 @@ class Group {
 		this.elem.appendChild(button_delete);
 		this.elem.appendChild(p);
 
-		parent.appendChild(this.elem);
+		this.parent.appendChild(this.elem);
 	}
 }

@@ -58,7 +58,7 @@ class Canvas {
 				formData.append('image', this.dataURLtoBlob(dataURL), filename);
 				formData.append('json_data', json);
 				formData.append('path', path);
-				
+
 				fetch('/upload_image', {
 				    method: 'POST',
 				    body: formData

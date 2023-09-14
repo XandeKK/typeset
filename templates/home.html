@@ -34,6 +34,16 @@
         </button>
       </div>
       <div id="docker_text" class="text-xs">
+        <div id="docker_layer" class="px-2 mb-2">
+          <label class="block mb-1 text-xs font-medium text-gray-900">Layers</label>
+          <label class="relative inline-flex items-center cursor-pointer select-none">
+            <input id="visible_box" type="checkbox" value="" class="sr-only peer" checked>
+            <div class="w-11 h-6 bg-gray-400 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            <span class="ml-3 font-medium text-gray-900">Visible Box</span>
+          </label>
+          <ul id="layers" class="bg-white w-full select-none h-24 overflow-y-scroll rounded">
+          </ul>
+        </div>
         <div id="docker_margin" class="mb-1 pb-2 border-b border-zinc-300 px-2">
           <label for="margin" class="block mb-1 text-xs font-medium text-gray-900">Margin</label>
           <div id="margin" class="flex justify-between">
@@ -75,35 +85,6 @@
             <div class="flex">
               <input id="italic" type="checkbox" value="" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500" data='text'>
               <label for="italic" class="ml-1 text-xs font-medium text-gray-900">Italic</label>
-            </div>
-          </div>
-        </div>
-        <div id="docker_outline" class="px-2 mb-1 pb-2 border-b border-zinc-300">
-          <div class="">
-            <div id="simple">
-              <label class="block mb-1 text-xs font-medium text-gray-900">Outline</label>
-              <div id="outline" class="flex gap-1 items-center select-none mb-1">
-                <div>
-                  <input type="color" name="outlineColor" id="outlineColor" class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-10" data='text'>
-                </div>
-                <div class="flex items-center gap-1">
-                  <input type="number" name="outlineSize" id="outlineSize" class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-10 p-1" data='text'>
-                  <input type="checkbox" name="outlineOn" id="outlineOn" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500" data='text'>
-                </div>
-              </div>
-            </div>
-            <div id="blur">
-              <label class="block mb-1 text-xs font-medium text-gray-900">Outline Blur</label>
-              <div id="outline" class="flex gap-1 items-center select-none mb-1">
-                <div>
-                  <input type="color" name="outlineBlurColor" id="outlineBlurColor" class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-10" data='text'>
-                </div>
-                <div class="flex items-center gap-1">
-                  <input type="number" name="outlineBlurSize" id="outlineBlurSize" class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-10 p-1" data='text'>
-                  <input type="number" name="outlineBlurLevel" id="outlineBlurLevel" class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-10 p-1" data='text'>
-                  <input type="checkbox" name="outlineBlurOn" id="outlineBlurOn" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500" data='text'>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -168,83 +149,6 @@
                 <path fill-rule="evenodd" d="M16.72 7.72a.75.75 0 011.06 0l3.75 3.75a.75.75 0 010 1.06l-3.75 3.75a.75.75 0 11-1.06-1.06l2.47-2.47H3a.75.75 0 010-1.5h16.19l-2.47-2.47a.75.75 0 010-1.06z" clip-rule="evenodd" />
               </svg>
             </button>
-          </div>
-
-        </div>
-        <div id="docker_text" class="text-xs">
-          <div id="docker_light" class="px-2 pb-2 mb-1 border-b border-zinc-300 px-2">
-            <label class="block mb-1 text-xs font-medium text-gray-900">Light</label>
-            <div id="light_status" class="flex gap-1 items-center select-none mb-2 justify-between">
-              <div class="flex">
-                <input id="lightOn" type="checkbox" value="" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500" data='text'>
-                <label for="lightOn" class="ml-1 text-xs font-medium text-gray-900">On</label>
-              </div>
-              <div class="flex">
-                <input id="lightShow" type="checkbox" value="" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500" data='text'>
-                <label for="lightShow" class="ml-1 text-xs font-medium text-gray-900">Show</label>
-              </div>
-              <div class="flex">
-                <input id="lightCircle" type="radio" name="lightGeometry" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500" value="circle" data='text' value-text='circle'>
-                <label for="lightCircle" class="ml-1 text-xs font-medium text-gray-900">Circle</label>
-              </div>
-              <div class="flex">
-                <input id="lightRect" type="radio" name="lightGeometry" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500" value="rect" data='text' value-text='rect'>
-                <label for="light_rect" class="ml-1 text-xs font-medium text-gray-900">Rect</label>
-              </div>
-            </div>
-            <div id="light_number" class="flex justify-between mb-2">
-              <div>
-                <label class="block mb-1 text-xs font-medium text-gray-900">X</label>
-                <input type="number" name="lightX" id="lightX" class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-10 p-1" data='text'>
-              </div>
-              <div>
-                <label class="block mb-1 text-xs font-medium text-gray-900">Y</label>
-                <input type="number" name="lightY" id="lightY" class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-10 p-1" data='text'>
-              </div>
-              <div>
-                <label class="block mb-1 text-xs font-medium text-gray-900">Width</label>
-                <input type="number" name="lightWidth" id="lightWidth" class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-10 p-1" data='text'>
-              </div>
-              <div>
-                <label class="block mb-1 text-xs font-medium text-gray-900">Height</label>
-                <input type="number" name="lightHeight" id="lightHeight" class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-10 p-1" data='text'>
-              </div>
-              <div>
-                <label class="block mb-1 text-xs font-medium text-gray-900">Radius</label>
-                <input type="number" name="lightRadius" id="lightRadius" class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-10 p-1" data='text'>
-              </div>
-            </div>
-            <div id="light_direction" class="flex gap-1 items-center select-none mb-2 justify-between">
-              <div>
-                <input type="color" name="lightFill" id="lightFill" class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-10" data='text'>
-              </div>
-              <div class="flex">
-                <input id="light_top" type="radio" name="lightDirection" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-full focus:ring-blue-500" data='text' value-text='top'>
-                <label for="light_top" class="ml-1 text-xs font-medium text-gray-900">T</label>
-              </div>
-              <div class="flex">
-                <input id="light_bottom" type="radio" name="lightDirection" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-full focus:ring-blue-500" data='text' value-text='bottom'>
-                <label for="light_bottom" class="ml-1 text-xs font-medium text-gray-900">B</label>
-              </div>
-              <div class="flex">
-                <input id="light_left" type="radio" name="lightDirection" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-full focus:ring-blue-500" data='text' value-text='left'>
-                <label for="light_left" class="ml-1 text-xs font-medium text-gray-900">L</label>
-              </div>
-              <div class="flex">
-                <input id="light_right" type="radio" name="lightDirection" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-full focus:ring-blue-500" data='text' value-text='right'>
-                <label for="light_right" class="ml-1 text-xs font-medium text-gray-900">R</label>
-              </div>
-            </div>
-          </div>
-          <div id="docker_layer" class="px-2">
-            <label class="block mb-1 text-xs font-medium text-gray-900">Layers</label>
-            <label class="relative inline-flex items-center cursor-pointer select-none">
-              <input id="visible_box" type="checkbox" value="" class="sr-only peer" checked>
-              <div class="w-11 h-6 bg-gray-400 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-              <span class="ml-3 font-medium text-gray-900">Visible Box</span>
-            </label>
-            <ul id="layers" class="bg-white w-full select-none h-40 overflow-y-scroll rounded">
-            </ul>
           </div>
         </div>
       </div>

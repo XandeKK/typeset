@@ -12,12 +12,26 @@ class Handler {
 		window.can_pass = true;
 
 		this.events();
+		this.load_plugins();
 	}
 
 	events() {
 		document.getElementById('previous').addEventListener('click', this.previous.bind(this));
 		document.getElementById('next').addEventListener('click', this.next.bind(this));
 		document.getElementById('switch_img').addEventListener('click', this.switch_img);
+	}
+
+	load_plugins() {
+		fetch('/plugins')
+		.then(response => response.json())
+		.then(data => {
+			data.forEach(filename => {
+				const scriptElement = document.createElement('script');
+				scriptElement.src = '/static/javascripts/plugins/' + filename;
+
+				document.body.appendChild(scriptElement);
+			});
+		});
 	}
 
 	switch_img() {
@@ -151,13 +165,13 @@ class Handler {
 			scaleX: percent,
 			scaleY: percent,
 		});
-    	this.fabric.setHeight(data.img.height * percent);
-	   	this.fabric.setBackgroundImage(img, this.fabric.renderAll.bind(this.fabric));
-	   	callback();
-	   	const raw_image = document.getElementById('raw');
-	   	raw_image.src = data.img.src.replace('cleaned', 'raw');
-	   	raw_image.width = this.fabric.width;
-	   	raw_image.height = this.fabric.height;
+		this.fabric.setHeight(data.img.height * percent);
+		this.fabric.setBackgroundImage(img, this.fabric.renderAll.bind(this.fabric));
+		callback();
+		const raw_image = document.getElementById('raw');
+		raw_image.src = data.img.src.replace('cleaned', 'raw');
+		raw_image.width = this.fabric.width;
+		raw_image.height = this.fabric.height;
 	}
 
 	clear() {
