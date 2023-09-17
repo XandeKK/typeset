@@ -207,11 +207,13 @@ function createCustomPlugin(textbox, id = null) {
     }
 
     // Add the plugin to the textCanvas for frontend rendering
-    textbox.textCanvas.addPlugin('custom_plugin', { id: id, frontend: frontend, delete: deletePlugin });
+    // the name must be the same as the function
+    textbox.textCanvas.addPlugin('createCustomPlugin', { id: id, frontend: frontend, delete: deletePlugin });
 
     // If the plugin is not loaded from a saved state, return plugin information
+    // the name must be the same as the function
     if (!loaded) {
-        return { id: id, name: 'custom_plugin', properties: [] /* Add property names here */ };
+        return { id: id, name: 'createCustomPlugin', properties: [] /* Add property names here */ };
     }
 }
 ```
