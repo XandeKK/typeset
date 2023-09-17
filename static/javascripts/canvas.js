@@ -32,15 +32,7 @@ class Canvas {
 		const scale = img.scaleX;
 
 		const originalObjects = this.fabric.getObjects();
-		const clonedCanvas = new fabric.Canvas(null, {
-			width: img.width,
-			height: img.height,
-			backgroundImage: fabric.util.object.clone(img)
-		});
-
-		clonedCanvas.backgroundImage.set({scaleX: 1, scaleY: 1});
-
-		const length = originalObjects.length;
+		const clonedCanvas = new fabric.Canvas();
 
 		const download = (clonedCanvas)=> {
 			const dataURL = clonedCanvas.toDataURL();
@@ -66,22 +58,33 @@ class Canvas {
 			.catch(error => {Alert.alert(error, 'danger'); this.can_download = true;});
 		}
 
-		for (var i = 0; i < length; i++) {
-			const obj = originalObjects[i];
-			obj.clone((clone_obj)=> {
-				if (clone_obj.type != 'rect') {
-					clone_obj.textCanvas = {addPlugin: ()=>{}};
-					clone_obj.plugins.forEach(plugin=> {
-		                clone_obj.addPlugin(window[plugin.name], plugin.id);
-		            });
-					clone_obj.setScale(scale);
-					clonedCanvas.add(clone_obj);
-				}
-				if (i === length - 1) {
-					download(clonedCanvas);
-				}
-			});
-		}
+		img.clone((_img)=> {
+			_img.set({scaleX: 1, scaleY: 1});
+			clonedCanvas.set({
+				width: _img.width,
+				height: _img.height,
+			})
+			clonedCanvas.backgroundImage = _img;
+
+			const length = originalObjects.length;
+
+			for (var i = 0; i < length; i++) {
+				const obj = originalObjects[i];
+				obj.clone((clone_obj)=> {
+					if (clone_obj.type != 'rect') {
+						clone_obj.textCanvas = {addPlugin: ()=>{}};
+						clone_obj.plugins.forEach(plugin=> {
+			                clone_obj.addPlugin(window[plugin.name], plugin.id);
+			            });
+						clone_obj.setScale(scale);
+						clonedCanvas.add(clone_obj);
+					}
+					if (i === length - 1) {
+						download(clonedCanvas);
+					}
+				});
+			}
+		});
 	}
 
 	dataURLtoBlob(dataURL) {
