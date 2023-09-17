@@ -1,11 +1,11 @@
 from flask_socketio import SocketIO, emit
-# from lib.ai import Handler, glob_json
+from lib.ai import Handler, glob_json
 import os
 import json
 import time
 
 socketio = SocketIO()
-# handler = Handler()
+handler = Handler()
 
 @socketio.on('connect')
 def handle_connect():

@@ -1,15 +1,68 @@
 class TextCanvas {
     constructor(canvas, options, object=null) {
         this.canvas = canvas;
+        this.plugins = [];
 
         if (object) {
             this.text = object;
+            this.text.textCanvas = this;
+            this.text.plugins.forEach(plugin=> {
+                this.text.addPlugin(window[plugin.name], plugin.id);
+            });
         } else {
-            this.text = new fabric.CustomTextbox(options);
+            this.text = new fabric.CustomTextbox({...options, textCanvas: this});
         }
     }
 
+    addPlugin(name, plugin) {
+        const object = {id: plugin.id, name: name, plugin: plugin};
+        this.plugins[object.id] = object;
+        this.text.dirty = true;
+        this.canvas.renderAll();
+        document.getElementById('plugins-installed').innerHTML = '';
+        this.select();
+    }
+
+    frontendPlugin(object) {
+        const parent = document.createElement('li');
+        parent.id = object.id;
+        parent.className = 'border border-gray-300 rounded bg-gray-100';
+        document.getElementById('plugins-installed').appendChild(parent);
+
+        const header = document.createElement('div');
+        header.className = 'flex justify-between mb-1 p-1';
+        parent.appendChild(header);
+
+        const label = document.createElement('label');
+        label.className = 'font-medium text-gray-900';
+        label.textContent = object.name;
+        header.appendChild(label);
+
+        const elem = document.createElement('div');
+        elem.className = 'p-2';
+        parent.appendChild(elem);
+
+        const button_remove = document.createElement('button');
+        button_remove.textContent = 'X';
+        button_remove.className = 'bg-red-500 rounded text-white hover:bg-red-700 px-2';
+        button_remove.setAttribute('id-parent', object.id);
+        button_remove.addEventListener('click', (evt)=> {
+            const id = evt.target.getAttribute('id-parent');
+
+            document.getElementById(id).remove();
+            this.plugins[id].plugin.delete();
+            delete this.plugins[id];
+        });
+        header.appendChild(button_remove);
+
+        object.plugin.frontend(elem);
+    }
+
     select() {
+        for (const id in this.plugins) {
+            this.frontendPlugin(this.plugins[id]);
+        }
+
         const allElements = document.querySelectorAll('[data="text"]');
         allElements.forEach((input)=> {
             if (window.eventText) {
@@ -40,6 +93,8 @@ class TextCanvas {
     }
 
     deselect() {
+        document.getElementById('plugins-installed').innerHTML = '';
+
         const allElements = document.querySelectorAll('[data="text"]');
         allElements.forEach((input)=> {
             if (window.eventText) {
@@ -78,4 +133,10 @@ class TextCanvas {
         }
         this.canvas.renderAll();
     }
+}
+
+function uuidv4() {
+  return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+    (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+  );
 }

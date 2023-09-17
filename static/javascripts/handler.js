@@ -2,6 +2,7 @@ class Handler {
 	constructor() {
 		this.canvas = new Canvas();
 		this.fabric = this.canvas.fabric;
+		this.plugins = new Plugins(this.fabric);
 		this.socket = new Socket([
 			{name: 'boxs', callback: this.get_work.bind(this)},
 			{name: 'load', callback: this.load.bind(this)},
@@ -12,26 +13,12 @@ class Handler {
 		window.can_pass = true;
 
 		this.events();
-		this.load_plugins();
 	}
 
 	events() {
 		document.getElementById('previous').addEventListener('click', this.previous.bind(this));
 		document.getElementById('next').addEventListener('click', this.next.bind(this));
 		document.getElementById('switch_img').addEventListener('click', this.switch_img);
-	}
-
-	load_plugins() {
-		fetch('/plugins')
-		.then(response => response.json())
-		.then(data => {
-			data.forEach(filename => {
-				const scriptElement = document.createElement('script');
-				scriptElement.src = '/static/javascripts/plugins/' + filename;
-
-				document.body.appendChild(scriptElement);
-			});
-		});
 	}
 
 	switch_img() {

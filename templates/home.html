@@ -151,6 +151,13 @@
             </button>
           </div>
         </div>
+        <div id="docker-plugins" class="px-2">
+          <label class="block mb-1 text-xs font-medium text-gray-900">Plugins</label>
+          <ul id="plugins" class="bg-white w-full select-none h-32 overflow-y-scroll rounded mb-2">
+          </ul>
+          <ul id="plugins-installed" class="flex flex-col gap-2 overflow-y-scroll h-96">
+          </ul>
+        </div>
       </div>
     </div>
 
@@ -254,6 +261,7 @@
 
     <script src="{{ url_for('static', filename='javascripts/socket.js') }}"></script>
     <script src="{{ url_for('static', filename='javascripts/fonts.js') }}"></script>
+    <script src="{{ url_for('static', filename='javascripts/plugins.js') }}"></script>
     <script src="{{ url_for('static', filename='javascripts/textbox.js') }}"></script>
     <script src="{{ url_for('static', filename='javascripts/text_canvas.js') }}"></script>
     <script src="{{ url_for('static', filename='javascripts/bubble_canvas.js') }}"></script>

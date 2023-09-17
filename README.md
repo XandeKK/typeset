@@ -100,28 +100,118 @@ This hook is executed when the scale of the `CustomTextbox` is adjusted. It prov
 These hooks provide flexibility for customizing the rendering process and behavior of the `CustomTextbox` class. You can use the provided arguments to access information about the rendering context and the current state of the rendering, enabling you to implement a wide range of custom functionalities and effects.
 
 ```javascript
-// Create an instance of CustomTextbox
-var textbox = new fabric.CustomTextbox({ text: 'Sample text' });
+/**
+ * Creates a custom plugin for the CustomTextbox.
+ *
+ * @param {CustomTextbox} textbox - The CustomTextbox instance.
+ * @param {string|null} id - An optional unique identifier for the plugin.
+ * @returns {Object} - An object representing the plugin.
+ */
+function createCustomPlugin(textbox, id = null) {
+    // Check if the plugin is loaded or needs to generate an ID
+    let loaded = true;
+    if (!id) {
+        loaded = false;
+        id = uuidv4(); // You may replace this with your ID generation logic
+        // Create and initialize custom properties when generating a new ID
+        // Example:
+        textbox[id + '-name_property'] = 0;
+    }
 
-// Add a custom plugin
-function customPlugin(textbox) {
-    // Add custom functionalities here
+    // Define the plugin's hook functions
 
-    // Add a hook before rendering
-    textbox.hooks.beforeRender.push(function (obj, arg) {
-        // Perform actions before rendering
-        console.log('Before rendering');
-    });
-    // push property in cacheProperties of fabricjs
-    textbox.cacheProperties.push(
-        'test',
-        'test_1'
-    );
+    // Hook: Before rendering
+    textbox.hooks.beforeRender[id] = {
+        id: id,
+        function: function (obj, arg) {
+            // Add custom actions before rendering here
+        }
+    };
+
+    // Hook: Before rendering each letter
+    textbox.hooks.beforeLetterRender[id] = {
+        id: id,
+        function: function (obj, arg) {
+            // Add custom actions before rendering each letter here
+        }
+    };
+
+    // Hook: After rendering each letter
+    textbox.hooks.afterLetterRender[id] = {
+        id: id,
+        function: function (obj, arg) {
+            // Add custom actions after rendering each letter here
+        }
+    };
+
+    // Hook: After rendering
+    textbox.hooks.afterRender[id] = {
+        id: id,
+        function: function (obj, arg) {
+            // Add custom actions after rendering here
+        }
+    };
+
+    // Hook: Serialize plugin-specific properties for object serialization
+    textbox.hooks.toObject[id] = {
+        id: id,
+        function: function (obj, arg) {
+            const json = {};
+            // Add custom properties to be serialized here
+            // Example: json[id + '-name_property'] = obj[id + '-name_property'];
+            return json;
+        }
+    };
+
+    // Hook: Handle scaling of plugin-specific properties
+    textbox.hooks.setScale[id] = {
+        id: id,
+        function: function (obj, arg) {
+            // Adjust custom properties based on the scaling factor here
+            // Example: obj[id + '-name_property'] /= arg.scale;
+        }
+    };
+
+    // Add custom properties to the cacheProperties array for caching
+    // Example: textbox.cacheProperties.push(id + '-name_property');
+
+    // Define a frontend function for rendering
+    function frontend(parent) {
+        // Render the frontend UI or visual elements here
+    }
+
+    // Define a delete function to clean up the plugin
+    function deletePlugin() {
+        // Remove all hooks related to this plugin
+        delete textbox.hooks.beforeRender[id];
+        delete textbox.hooks.afterRender[id];
+        delete textbox.hooks.toObject[id];
+        delete textbox.hooks.setScale[id];
+
+        // Delete any plugin-specific properties
+        // Example: delete textbox[id + '-name_property'];
+
+        // Remove the plugin from the textbox's plugins array
+        const pluginIndex = textbox.plugins.findIndex(obj => obj.properties[0].includes(id));
+        if (pluginIndex !== -1) {
+            textbox.plugins.splice(pluginIndex, 1);
+        }
+
+        // Remove any plugin-specific properties from the cacheProperties array
+        // Example: const cacheIndex = textbox.cacheProperties.indexOf(id + '-name_property');
+        // Example: if (cacheIndex !== -1) textbox.cacheProperties.splice(cacheIndex, 1);
+
+        // Set the textbox as dirty and trigger rendering
+        textbox.dirty = true;
+        textbox.canvas.renderAll();
+    }
+
+    // Add the plugin to the textCanvas for frontend rendering
+    textbox.textCanvas.addPlugin('custom_plugin', { id: id, frontend: frontend, delete: deletePlugin });
+
+    // If the plugin is not loaded from a saved state, return plugin information
+    if (!loaded) {
+        return { id: id, name: 'custom_plugin', properties: [] /* Add property names here */ };
+    }
 }
-
-// Add the plugin to the CustomTextbox object
-textbox.addPlugin(customPlugin);
-
-// Render the text
-textbox.renderText();
 ```

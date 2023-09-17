@@ -1,5 +1,7 @@
 fabric.CustomTextbox = new fabric.util.createClass(fabric.Object, {
     objectCaching: true,
+    maxCacheSideLimit: 8000,
+    minCacheSideLimit: 8000,
     hasControls: false,
     hasBorders: false,
     hasRotatingPoint: false,
@@ -16,20 +18,14 @@ fabric.CustomTextbox = new fabric.util.createClass(fabric.Object, {
     lineHeight: 1,
     fill: '#000000',
     letterSpacing: 0.5,
+    textCanvas: null,
 
-    hooks: {
-        beforeRender: [],
-        beforeRenderText: [],
-        beforeLetterRender: [],
-        afterLetterRender: [],
-        afterRender: [],
-        toObject: [],
-        setScale: [],
-    },
-
-    addPlugin: function (plugin) {
+    addPlugin: function (plugin, id=null) {
         if (typeof plugin === 'function') {
-            plugin(this);
+            const obj = plugin(this, id);
+            if (obj) {
+                this.plugins.push(obj);
+            }
         } else {
             console.error('The provided plugin is not a valid function.');
         }
@@ -37,16 +33,20 @@ fabric.CustomTextbox = new fabric.util.createClass(fabric.Object, {
 
     executeHooks: function (hookType, arg) {
         const hooks = this.hooks[hookType];
-        hooks.forEach((hook) => {
-            if (typeof hook === 'function') {
-                hook(this, arg);
+        let returns = [];
+        for (const hook_id in hooks) {
+            const hook = hooks[hook_id];
+            if (typeof hook.function === 'function') {
+                returns.push(hook.function(this, {...arg, id: hook.id}));
             }
-        });
+        }
+        return returns;
     },
 
     initialize: function(options) {
         options || (options = {});
         this.callSuper('initialize', options);
+        this.textCanvas = options.textCanvas || null;
         this.text = options.text || '';
         this.bold = options.bold ? 'bold' : '';
         this.italic = options.italic ? 'italic' : '';
@@ -65,6 +65,17 @@ fabric.CustomTextbox = new fabric.util.createClass(fabric.Object, {
             'bold',
             'italic',
         ];
+
+        this.plugins = options.plugins || [];
+
+        this.hooks = options.hooks || {
+            beforeRender: {},
+            beforeLetterRender: {},
+            afterLetterRender: {},
+            afterRender: {},
+            toObject: {},
+            setScale: {},
+        };
     },
     _render: function(ctx) {
         ctx.font = `${this.bold ? 'bold' : ''} ${this.italic ? 'italic' : ''} ${this.fontSize}px ${this.font}`;
@@ -153,7 +164,8 @@ fabric.CustomTextbox = new fabric.util.createClass(fabric.Object, {
             letterSpacing: this.letterSpacing,
             bold: this.bold,
             italic: this.italic,
-            ...this.executeHooks('toObject') || {}
+            plugins: this.plugins,
+            ...Object.assign({}, ...this.executeHooks('toObject'))
         });
     },
     setScale(scale) {
