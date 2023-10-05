@@ -1,5 +1,7 @@
 fabric.CustomTextbox = new fabric.util.createClass(fabric.Object, {
-    objectCaching: false,
+    objectCaching: true,
+    maxCacheSideLimit: 8000,
+    minCacheSideLimit: 8000,
     hasControls: false,
     hasBorders: false,
     hasRotatingPoint: false,
@@ -9,8 +11,6 @@ fabric.CustomTextbox = new fabric.util.createClass(fabric.Object, {
     lockScalingY: true,
     type: 'CustomTextbox',
     text: '',
-    styles: [],
-    currentIndex: 0,
     marginTop: 0,
     marginBottom: 0,
     marginLeft: 0,
@@ -18,34 +18,40 @@ fabric.CustomTextbox = new fabric.util.createClass(fabric.Object, {
     lineHeight: 1,
     fill: '#000000',
     letterSpacing: 0.5,
-    outlineOn: false,
-    outlineSize: 3,
-    outlineColor: '#ffffff',
-    outlineBlurOn: false,
-    outlineBlurSize: 3,
-    outlineBlurColor: '#ffffff',
-    outlineBlurLevel: 5,
-    lightOn: false,
-    lightGeometry: 'circle',
-    lightHeight: 0,
-    lightDirection: 'top',
-    lightWidth: 0,
-    lightX: 0,
-    lightY: 0,
-    lightRadius: 300,
-    lightFill: '#ffffff',
+    textCanvas: null,
+
+    addPlugin: function (plugin, id=null) {
+        if (typeof plugin === 'function') {
+            const obj = plugin(this, id);
+            if (obj) {
+                this.plugins.push(obj);
+            }
+        } else {
+            console.error('The provided plugin is not a valid function.');
+        }
+    },
+
+    executeHooks: function (hookType, arg) {
+        const hooks = this.hooks[hookType];
+        let returns = [];
+        for (const hook_id in hooks) {
+            const hook = hooks[hook_id];
+            if (typeof hook.function === 'function') {
+                returns.push(hook.function(this, {...arg, id: hook.id}));
+            }
+        }
+        return returns;
+    },
 
     initialize: function(options) {
         options || (options = {});
         this.callSuper('initialize', options);
+        this.textCanvas = options.textCanvas || null;
         this.text = options.text || '';
         this.bold = options.bold ? 'bold' : '';
         this.italic = options.italic ? 'italic' : '';
-        this.lightWidth = options.lightWidth ? options.lightWidth : this.width / 2;
-        this.lightHeight = options.lightHeight ? options.lightHeight : this.height / 2;
         this.cacheProperties = [
             'text',
-            'styles',
             'fill',
             'font',
             'fontSize',
@@ -58,23 +64,18 @@ fabric.CustomTextbox = new fabric.util.createClass(fabric.Object, {
             'letterSpacing',
             'bold',
             'italic',
-            'outlineOn',
-            'outlineSize',
-            'outlineColor',
-            'outlineBlurOn',
-            'outlineBlurSize',
-            'outlineBlurColor',
-            'outlineBlurLevel',
-            'lightOn',
-            'lightGeometry',
-            'lightHeight',
-            'lightDirection',
-            'lightWidth',
-            'lightX',
-            'lightY',
-            'lightRadius',
-            'lightFill',
         ];
+
+        this.plugins = options.plugins || [];
+
+        this.hooks = options.hooks || {
+            beforeRender: {},
+            beforeLetterRender: {},
+            afterLetterRender: {},
+            afterRender: {},
+            toObject: {},
+            setScale: {},
+        };
     },
     _render: function(ctx) {
         ctx.font = `${this.bold ? 'bold' : ''} ${this.italic ? 'italic' : ''} ${this.fontSize}px ${this.font}`;
@@ -93,42 +94,8 @@ fabric.CustomTextbox = new fabric.util.createClass(fabric.Object, {
         const y2 = this.height / 2;
 
         let y = y1 + this.marginTop + (y2 - y1 - totalHeight - this.marginTop - this.marginBottom) / 2 + lineHeight;
-        let y_outline = y;
 
-        // outline
-        for (let i = 0; i < lines.length; i++) {
-            const line = lines[i];
-            const lineWidth = ctx.measureText(line).width;
-
-            let x;
-            if (this.textAlign == 'left') {
-                x = -this.width / 2 + this.marginLeft - this.marginRight;
-            } else if (this.textAlign == 'right') {
-                x = -lineWidth + this.width / 2 + this.marginLeft - this.marginRight;
-            } else {
-                x = -lineWidth / 2 + this.marginLeft - this.marginRight;
-            }
-            for (let j = 0; j < line.length; j++) {
-                const letter = line[j];
-                const style = this.styles[this.currentIndex];
-
-                if (style) {
-                    ctx.fillStyle = style.fill || this.fill;
-                    ctx.font = `${style.bold || this.bold} ${style.italic || this.italic} ${style.fontSize || this.fontSize}px ${style.font || this.font}`;
-                }
-
-                if (this.outlineBlurOn) {
-                    this.drawOutlineBlur(ctx, letter, x, y_outline);
-                }
-                if (this.outlineOn) {
-                    this.drawOutline(ctx, letter, x, y_outline);
-                }
-
-                x += ctx.measureText(letter).width;
-                // this.currentIndex++;
-            }
-            y_outline += lineHeight;
-        }
+        this.executeHooks('beforeRender', {ctx});
 
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i];
@@ -144,23 +111,20 @@ fabric.CustomTextbox = new fabric.util.createClass(fabric.Object, {
             }
             for (let j = 0; j < line.length; j++) {
                 const letter = line[j];
-                const style = this.styles[this.currentIndex];
 
-                if (style) {
-                    ctx.fillStyle = style.fill || this.fill;
-                    ctx.font = `${style.bold || this.bold} ${style.italic || this.italic} ${style.fontSize || this.fontSize}px ${style.font || this.font}`;
-                }
+                this.executeHooks('beforeLetterRender', {ctx, letter, x, y});
 
-                if (this.lightOn) {
-                    this.draw_light(ctx);
-                }
                 ctx.fillText(letter, x, y);
 
+                this.executeHooks('afterLetterRender', {ctx, letter, x, y});
+
                 x += ctx.measureText(letter).width;
-                this.currentIndex++;
             }
             y += lineHeight;
         }
+
+        this.executeHooks('afterRender', {ctx});
+
         this.callSuper('_render', ctx);
     },
     breakTextIntoLines: function(maxWidth, ctx) {
@@ -184,51 +148,6 @@ fabric.CustomTextbox = new fabric.util.createClass(fabric.Object, {
         }
         return lines;
     },
-    drawOutline(ctx, letter, x, y) {
-        ctx.miterLimit = 2;
-        ctx.lineJoin = 'circle';
-        ctx.strokeStyle = this.outlineColor;
-        ctx.lineWidth = this.outlineSize;
-        ctx.strokeText(letter, x, y);
-    },
-    drawOutlineBlur(ctx, letter, x, y) {
-        ctx.miterLimit = 2;
-        ctx.lineJoin = 'circle';
-        ctx.strokeStyle = this.outlineBlurColor;
-        ctx.shadowColor = this.outlineBlurColor;
-        ctx.shadowBlur = this.outlineBlurLevel;
-        ctx.lineWidth = this.outlineBlurSize;
-        ctx.strokeText(letter, x, y);
-        ctx.shadowBlur = 0;
-    },
-    draw_light(ctx) {
-        let gradient;
-        if (this.lightGeometry === 'rect') {
-            const x1 = -this.width / 2;
-            const x2 = this.width / 2;
-            const y1 = -this.height / 2;
-            const y2 = this.height / 2;
-
-            if (this.lightDirection === 'left') {
-                gradient = ctx.createLinearGradient(x1, 0, x1 + this.lightWidth, 0);
-            } else if (this.lightDirection === 'top') {
-                gradient = ctx.createLinearGradient(x1 + this.width / 2, y1, x1 + this.width / 2, y1 + this.lightHeight);
-            } else if (this.lightDirection === 'bottom') {
-                gradient = ctx.createLinearGradient(x1 + this.width / 2, y2, x1 + this.width / 2, y2 - this.lightHeight);
-            } else if (this.lightDirection === 'right') {
-                gradient = ctx.createLinearGradient(x2, y1 + this.height / 2, x2 - this.lightWidth, y1 + this.height / 2);
-            }
-        } else {
-            gradient = ctx.createRadialGradient(this.lightX, this.lightY, 0, this.lightX, this.lightY, this.lightRadius);
-        }
-        gradient.addColorStop(0, this.lightFill);
-        gradient.addColorStop(1, this.fill);
-
-        ctx.fillStyle = gradient;
-    },
-    addStyle: function(style) {
-        this.styles.push(style);
-    },
     toObject: function() {
         return fabric.util.object.extend(this.callSuper('toObject'), {
             text: this.text,
@@ -241,27 +160,12 @@ fabric.CustomTextbox = new fabric.util.createClass(fabric.Object, {
             marginBottom: this.marginBottom,
             marginLeft: this.marginLeft,
             marginRight: this.marginRight,
-            styles: this.styles,
             lineHeight: this.lineHeight,
             letterSpacing: this.letterSpacing,
             bold: this.bold,
             italic: this.italic,
-            outlineOn: this.outlineOn,
-            outlineSize: this.outlineSize,
-            outlineColor: this.outlineColor,
-            outlineBlurOn: this.outlineBlurOn,
-            outlineBlurSize: this.outlineBlurSize,
-            outlineBlurColor: this.outlineBlurColor,
-            outlineBlurLevel: this.outlineBlurLevel,
-            lightOn: this.lightOn,
-            lightGeometry: this.lightGeometry,
-            lightWidth: this.lightWidth,
-            lightHeight: this.lightHeight,
-            lightDirection: this.lightDirection,
-            lightX: this.lightX,
-            lightY: this.lightY,
-            lightRadius: this.lightRadius,
-            lightFill: this.lightFill,
+            plugins: this.plugins,
+            ...Object.assign({}, ...this.executeHooks('toObject'))
         });
     },
     setScale(scale) {
@@ -270,18 +174,13 @@ fabric.CustomTextbox = new fabric.util.createClass(fabric.Object, {
         this.width /= scale;
         this.height /= scale;
         this.fontSize /= scale;
-        this.outlineSize /= scale;
-        this.outlineBlurSize /= scale;
-        this.lightWidth /= scale;
-        this.lightHeight /= scale;
-        this.lightX /= scale;
-        this.lightY /= scale;
         this.marginTop /= scale;
         this.marginBottom /= scale;
         this.marginLeft /= scale;
         this.marginRight /= scale;
         this.lineHeight /= scale;
         this.letterSpacing /= scale;
+        this.executeHooks('setScale', {scale});
     }
 });
 

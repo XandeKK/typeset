@@ -51,3 +51,14 @@ def upload_image():
         f.write(json_data)
     
     return 'Image and JSON data uploaded!', 200
+
+@routes_blueprint.route('/plugins', methods=['GET'])
+def plugins():
+    plugins = []
+    plugins_directory = 'static/javascripts/plugins'
+
+    for filename in os.listdir(plugins_directory):
+        if filename.endswith('.js'):
+            plugins.append(filename)
+
+    return jsonify(plugins)

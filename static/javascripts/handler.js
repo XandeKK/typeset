@@ -2,6 +2,7 @@ class Handler {
 	constructor() {
 		this.canvas = new Canvas();
 		this.fabric = this.canvas.fabric;
+		this.plugins = new Plugins(this.fabric);
 		this.socket = new Socket([
 			{name: 'boxs', callback: this.get_work.bind(this)},
 			{name: 'load', callback: this.load.bind(this)},
@@ -122,7 +123,7 @@ class Handler {
 
 	load(msg) {
 		const parsed = JSON.parse(msg.objects);
-		const filename = parsed.backgroundImage.src.replace(/.*path=/, '')
+		const filename = parsed.overlayImage.src.replace(/.*path=/, '')
 		const img = new Image();
 		img.onload = ()=> {
 			this.images.push({
@@ -145,19 +146,23 @@ class Handler {
 		}
 	}
 
-	set_background_image(data, callback) {
+	set_overlay_image(data, callback) {
 		const percent = this.fabric.width / data.img.width;
 		const img = new fabric.Image(data.img, {
 			scaleX: percent,
 			scaleY: percent,
 		});
-    	this.fabric.setHeight(data.img.height * percent);
-	   	this.fabric.setBackgroundImage(img, this.fabric.renderAll.bind(this.fabric));
-	   	callback();
-	   	const raw_image = document.getElementById('raw');
-	   	raw_image.src = data.img.src.replace('cleaned', 'raw');
-	   	raw_image.width = this.fabric.width;
-	   	raw_image.height = this.fabric.height;
+		this.fabric.setHeight(data.img.height * percent);
+		this.fabric.setOverlayImage(img, this.fabric.renderAll.bind(this.fabric),
+			{
+				selectable: false,
+  				globalCompositeOperation: 'destination-atop',
+			});
+		callback();
+		const raw_image = document.getElementById('raw');
+		raw_image.src = data.img.src.replace('cleaned', 'raw');
+		raw_image.width = this.fabric.width;
+		raw_image.height = this.fabric.height;
 	}
 
 	clear() {
@@ -170,23 +175,23 @@ class Handler {
 		if (data.obj) {
 			this.canvas.load(data.obj);
 		} else if (data.boxs) {
-			this.set_background_image(data, ()=> {
+			this.set_overlay_image(data, ()=> {
 				data.boxs.forEach((box) => {
 					const bubble = new BubbleCanvas(this.fabric, {
-						left: box.x1 * this.fabric.backgroundImage.get('scaleX'),
-						top: box.y1 * this.fabric.backgroundImage.get('scaleX'),
-						width: (box.x2 - box.x1) * this.fabric.backgroundImage.get('scaleX'),
-						height: (box.y2 - box.y1) * this.fabric.backgroundImage.get('scaleX')
+						left: box.x1 * this.fabric.overlayImage.get('scaleX'),
+						top: box.y1 * this.fabric.overlayImage.get('scaleX'),
+						width: (box.x2 - box.x1) * this.fabric.overlayImage.get('scaleX'),
+						height: (box.y2 - box.y1) * this.fabric.overlayImage.get('scaleX')
 					});
 					const text = new TextCanvas(this.fabric, {
 						text: "",
 						textAlign: 'center',
 						fontSize: window.type_style === 'manga' ? 18 : 25,
 						font: window.type_style === 'manga' ? 'CCWildWords-Regular' : 'CCMightyMouth-Regular',
-						left: box.x1 * this.fabric.backgroundImage.get('scaleX'),
-						top: box.y1 * this.fabric.backgroundImage.get('scaleX'),
-						width: (box.x2 - box.x1) * this.fabric.backgroundImage.get('scaleX'),
-						height: (box.y2 - box.y1) * this.fabric.backgroundImage.get('scaleX')
+						left: box.x1 * this.fabric.overlayImage.get('scaleX'),
+						top: box.y1 * this.fabric.overlayImage.get('scaleX'),
+						width: (box.x2 - box.x1) * this.fabric.overlayImage.get('scaleX'),
+						height: (box.y2 - box.y1) * this.fabric.overlayImage.get('scaleX')
 					})
 					new Group(bubble, text, this.fabric);
 				});
