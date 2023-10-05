@@ -69,141 +69,60 @@ function light(textbox, id=null) {
         }
     }
 
-    textbox.cacheProperties.push(
-        id + '-geometry',
-        id + '-height',
-        id + '-direction',
-        id + '-width',
-        id + '-x',
-        id + '-y',
-        id + '-radius',
-        id + '-fill'
-        );
-
     function frontend(parent) {
-        const labelElement = document.createElement('label');
-        labelElement.className = 'block mb-1 text-xs font-medium text-gray-900';
-        labelElement.textContent = 'Light';
+        const eventgeometry = (evt)=> {
+            textbox[id + '-geometry'] = evt.target.getAttribute('value-text');
+            textbox.dirty = true;
+            textbox.canvas.renderAll();
+        };
 
-        const lightStatusDiv = document.createElement('div');
-        lightStatusDiv.id = 'light_status';
-        lightStatusDiv.className = 'flex gap-1 items-center select-none mb-2 justify-between';
+        const geometryRadio = HtmlElementFactory.createRadio(null, null, ['circle', 'rect'], textbox[id + '-geometry'], eventgeometry.bind(this));
 
-        const inputDivs = [];
-        const inputLabels = ['circle', 'rect'];
+        parent.appendChild(geometryRadio);
 
-        for (let i = 0; i < inputLabels.length; i++) {
-            const inputDiv = document.createElement('div');
-            const input = document.createElement('input');
-            const label = document.createElement('label');
+        const dataDiv = HtmlElementFactory.createDiv('flex justify-between mb-2');
 
-            inputDiv.className = 'flex';
-            input.type = 'radio';
-            input.name = id + '-geometry';
-            input.id = id + inputLabels[i];
-            input.className = 'w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500';
-            input.value = '';
-            input.setAttribute('data', 'text');
-            input.setAttribute('value-text', inputLabels[i]);
-            input.checked = textbox[id + '-geometry'] == inputLabels[i];
+        parent.appendChild(dataDiv);
 
-            label.textContent = inputLabels[i];
-            label.className = 'ml-1 text-xs font-medium text-gray-900';
-            label.htmlFor = id + inputLabels[i];
+        const dataLabels = ['X', 'Y', 'Width', 'Height', 'Radius'];
 
-            inputDiv.appendChild(input);
-            inputDiv.appendChild(label);
+        dataLabels.forEach(lbl=>{
+            const div = HtmlElementFactory.createDiv('.');
+            const label = HtmlElementFactory.createLabel(lbl);
 
-            inputDivs.push(inputDiv);
-        }
+            const eventTop = (evt)=> {
+                textbox[id + '-' + lbl.toLowerCase()] = Number(evt.target.value);
+                textbox.dirty = true;
+                textbox.canvas.renderAll();
+            };
 
-        const lightNumberDiv = document.createElement('div');
-        lightNumberDiv.id = 'light_number';
-        lightNumberDiv.className = 'flex justify-between mb-2';
+            const input = HtmlElementFactory.createInput('number', null, textbox[id + '-' + lbl.toLowerCase()], eventTop.bind(this));
 
-        const numericInputLabels = ['X', 'Y', 'Width', 'Height', 'Radius'];
-        const numericInputIds = [id + '-x', id + '-y', id + '-width', id + '-height', id + '-radius'];
-        const numericInputDivs = [];
+            div.appendChild(label);
+            div.appendChild(input);
 
-        for (let i = 0; i < numericInputLabels.length; i++) {
-            const inputDiv = document.createElement('div');
-            const label = document.createElement('label');
-            const input = document.createElement('input');
-
-            label.textContent = numericInputLabels[i];
-            label.className = 'block mb-1 text-xs font-medium text-gray-900';
-            input.type = 'number';
-            input.id = numericInputIds[i];
-            input.className = 'bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-10 p-1';
-            input.setAttribute('data', 'text');
-
-            inputDiv.appendChild(label);
-            inputDiv.appendChild(input);
-
-            numericInputDivs.push(inputDiv);
-        }
-
-        const lightDirectionDiv = document.createElement('div');
-        lightDirectionDiv.id = 'light_direction';
-        lightDirectionDiv.className = 'flex gap-1 items-center select-none mb-2 justify-between';
-
-        const colorInputDiv = document.createElement('div');
-        const colorInput = document.createElement('input');
-
-        colorInput.type = 'color';
-        colorInput.id = id + '-fill';
-        colorInput.className = 'bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-10';
-        colorInput.setAttribute('data', 'text');
-
-        colorInputDiv.appendChild(colorInput);
-
-        const radioInputLabels = ['T', 'B', 'L', 'R'];
-        const radioInputIds = ['top', 'bottom', 'left', 'right'];
-        const radioInputDivs = [];
-
-        for (let i = 0; i < radioInputLabels.length; i++) {
-            const inputDiv = document.createElement('div');
-            const input = document.createElement('input');
-            const label = document.createElement('label');
-
-            input.type = 'radio';
-            input.name = id + '-direction';
-            input.id = id + radioInputIds[i];
-            input.className = 'w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-full focus:ring-blue-500';
-            input.setAttribute('data', 'text');
-            input.setAttribute('value-text', radioInputIds[i]);
-            input.checked = textbox[id + '-direction'] == radioInputIds[i];
-
-            label.textContent = radioInputLabels[i];
-            label.className = 'ml-1 text-xs font-medium text-gray-900';
-            label.htmlFor = radioInputIds[i];
-
-            inputDiv.appendChild(input);
-            inputDiv.appendChild(label);
-
-            radioInputDivs.push(inputDiv);
-        }
-
-        parent.appendChild(labelElement);
-        parent.appendChild(lightStatusDiv);
-
-        inputDivs.forEach((inputDiv) => {
-            lightStatusDiv.appendChild(inputDiv);
+            dataDiv.appendChild(div);
         });
 
-        parent.appendChild(lightNumberDiv);
+        const eventDirection = (evt)=> {
+            textbox[id + '-direction'] = evt.target.getAttribute('value-text');
+            textbox.dirty = true;
+            textbox.canvas.renderAll();
+        };
 
-        numericInputDivs.forEach((inputDiv) => {
-            lightNumberDiv.appendChild(inputDiv);
-        });
+        const directionRadio = HtmlElementFactory.createRadio('grid grid-cols-2 gap-1 mb-2', null, ['Top', 'Bottom', 'Left', 'Right'], textbox[id + '-direction'], eventDirection.bind(this));
 
-        parent.appendChild(lightDirectionDiv);
+        parent.appendChild(directionRadio);
 
-        lightDirectionDiv.appendChild(colorInputDiv);
+        const eventColor = (evt)=> {
+            textbox[id + '-fill'] = evt.target.value;
+            textbox.dirty = true;
+            textbox.canvas.renderAll();
+        };
 
-        radioInputDivs.forEach((inputDiv) => {
-            lightDirectionDiv.appendChild(inputDiv);
-        });
+        const colorInput = HtmlElementFactory.createInput('color', 'bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-10',textbox[id + '-fill'], eventColor.bind(this));
+
+        parent.appendChild(colorInput);
     }
 
     function _delete() {
@@ -221,30 +140,6 @@ function light(textbox, id=null) {
 
         let index_plugin = textbox.plugins.findIndex(obj => obj.properties[0].includes(id));
         textbox.plugins.splice(index_plugin, index_plugin + 1);
-
-        let index_cache = textbox.cacheProperties.indexOf(id + '-geometry');
-        textbox.cacheProperties.splice(index_cache, index_cache + 1);
-
-        index_cache = textbox.cacheProperties.indexOf(id + '-height');
-        textbox.cacheProperties.splice(index_cache, index_cache + 1);
-
-        index_cache = textbox.cacheProperties.indexOf(id + '-direction');
-        textbox.cacheProperties.splice(index_cache, index_cache + 1);
-
-        index_cache = textbox.cacheProperties.indexOf(id + '-width');
-        textbox.cacheProperties.splice(index_cache, index_cache + 1);
-
-        index_cache = textbox.cacheProperties.indexOf(id + '-x');
-        textbox.cacheProperties.splice(index_cache, index_cache + 1);
-
-        index_cache = textbox.cacheProperties.indexOf(id + '-y');
-        textbox.cacheProperties.splice(index_cache, index_cache + 1);
-
-        index_cache = textbox.cacheProperties.indexOf(id + '-radius');
-        textbox.cacheProperties.splice(index_cache, index_cache + 1);
-
-        index_cache = textbox.cacheProperties.indexOf(id + '-fill');
-        textbox.cacheProperties.splice(index_cache, index_cache + 1);
 
         textbox.dirty = true;
         textbox.canvas.renderAll();

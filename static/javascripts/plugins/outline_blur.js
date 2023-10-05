@@ -73,38 +73,53 @@ function outline_blur(textbox, id=null) {
         }
     }
 
-    textbox.cacheProperties.push(
-        id + '-size',
-        id + '-fill',
-        id + '-blur'
-    );
-
     function frontend(parent) {
-        parent.className = 'p-2 flex gap-2';
-        const size = document.createElement('input');
-        size.type = 'number';
-        size.setAttribute('data', 'text');
-        size.id = id + '-size';
-        size.value = textbox[id + '-size'];
-        size.className = 'bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-10 p-1';
+        parent.className = 'p-2 grid  grid-cols-2 gap-2';
 
-        const blur = document.createElement('input');
-        blur.type = 'number';
-        blur.setAttribute('data', 'text');
-        blur.id = id + '-blur';
-        blur.value = textbox[id + '-blur'];
-        blur.className = 'bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-10 p-1';
+        const sizeDiv = HtmlElementFactory.createDiv();
+        const sizeLabel = HtmlElementFactory.createLabel('Size');
 
-        const fill = document.createElement('input');
-        fill.type = 'color';
-        fill.setAttribute('data', 'text');
-        fill.id = id + '-fill';
-        fill.value = textbox[id + '-fill'];
-        fill.className = 'bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-10';
+        const eventSize = (evt)=> {
+            textbox[id + '-size'] = Number(evt.target.value);
+            textbox.dirty = true;
+            textbox.canvas.renderAll();
+        };
 
-        parent.appendChild(size);
-        parent.appendChild(blur);
-        parent.appendChild(fill);
+        const sizeInput = HtmlElementFactory.createInput('number', null, textbox[id + '-size'], eventSize.bind(this));
+
+        sizeDiv.appendChild(sizeLabel);
+        sizeDiv.appendChild(sizeInput);
+        parent.appendChild(sizeDiv);
+
+        const blurDiv = HtmlElementFactory.createDiv();
+        const blurLabel = HtmlElementFactory.createLabel('Blur');
+
+        const eventBlur = (evt)=> {
+            textbox[id + '-blur'] = Number(evt.target.value);
+            textbox.dirty = true;
+            textbox.canvas.renderAll();
+        };
+
+        const blurInput = HtmlElementFactory.createInput('number', null, textbox[id + '-blur'], eventBlur.bind(this));
+
+        blurDiv.appendChild(blurLabel);
+        blurDiv.appendChild(blurInput);
+        parent.appendChild(blurDiv);
+
+        const fillDiv = HtmlElementFactory.createDiv();
+        const fillLabel = HtmlElementFactory.createLabel('Fill');
+
+        const eventFill = (evt)=> {
+            textbox[id + '-fill'] = evt.target.value;
+            textbox.dirty = true;
+            textbox.canvas.renderAll();
+        };
+
+        const fillInput = HtmlElementFactory.createInput('color', 'bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-10', textbox[id + '-fill'], eventFill.bind(this));
+
+        fillDiv.appendChild(fillLabel);
+        fillDiv.appendChild(fillInput);
+        parent.appendChild(fillDiv);
     }
 
     function _delete() {
@@ -117,15 +132,6 @@ function outline_blur(textbox, id=null) {
 
         let index_plugin = textbox.plugins.findIndex(obj => obj.properties[0].includes(id));
         textbox.plugins.splice(index_plugin, index_plugin + 1);
-
-        let index_cache = textbox.cacheProperties.indexOf(id + '-size');
-        textbox.cacheProperties.splice(index_cache, index_cache + 1);
-
-        index_cache = textbox.cacheProperties.indexOf(id + '-fill');
-        textbox.cacheProperties.splice(index_cache, index_cache + 1);
-
-        index_cache = textbox.cacheProperties.indexOf(id + '-blur');
-        textbox.cacheProperties.splice(index_cache, index_cache + 1);
 
         textbox.dirty = true;
         textbox.canvas.renderAll();

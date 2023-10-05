@@ -36,20 +36,22 @@ function blur(textbox, id=null) {
         }
     }
 
-    textbox.cacheProperties.push(
-        id + '-blur'
-    );
-
     function frontend(parent) {
-        const blur = document.createElement('input');
-        blur.type = 'number';
-        blur.step = '0.2';
-        blur.setAttribute('data', 'text');
-        blur.id = id + '-blur';
-        blur.value = textbox[id + '-blur'];
-        blur.className = 'bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-10 p-1';
+        const blurDiv = HtmlElementFactory.createDiv();
+        const blurLabel = HtmlElementFactory.createLabel('Blur');
 
-        parent.appendChild(blur);
+        const eventBlur = (evt)=> {
+            textbox[id + '-blur'] = Number(evt.target.value);
+            textbox.dirty = true;
+            textbox.canvas.renderAll();
+        };
+
+        const blurInput = HtmlElementFactory.createInput('number', null, textbox[id + '-blur'], eventBlur.bind(this));
+        blurInput.step = '0.2';
+
+        blurDiv.appendChild(blurLabel);
+        blurDiv.appendChild(blurInput);
+        parent.appendChild(blurDiv);
     }
 
     function _delete() {
@@ -62,8 +64,6 @@ function blur(textbox, id=null) {
         let index_plugin = textbox.plugins.findIndex(obj => obj.properties[0].includes(id));
         textbox.plugins.splice(index_plugin, index_plugin + 1);
 
-        let index_cache = textbox.cacheProperties.indexOf(id + '-blur');
-        textbox.cacheProperties.splice(index_cache, index_cache + 1);
         textbox.dirty = true;
         textbox.canvas.renderAll();
     }
