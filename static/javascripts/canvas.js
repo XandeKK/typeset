@@ -1,6 +1,7 @@
 class Canvas {
 	constructor() {
 		let body_canvas = document.getElementById('body_canvas');
+		fabric.Object.NUM_FRACTION_DIGITS = 10;
 		this.fabric = new fabric.Canvas('canvas', {
 			width: body_canvas.clientWidth - 15,
 			height: body_canvas.clientHeight,
@@ -28,7 +29,7 @@ class Canvas {
 	download() {
 		if (!this.can_download) return;
 		this.can_download = false;
-		const img = this.fabric.backgroundImage;
+		const img = this.fabric.overlayImage;
 		const scale = img.scaleX;
 
 		const originalObjects = this.fabric.getObjects();
@@ -64,14 +65,16 @@ class Canvas {
 				width: _img.width,
 				height: _img.height,
 			})
-			clonedCanvas.backgroundImage = _img;
+			clonedCanvas.overlayImage = _img;
 
 			const length = originalObjects.length;
+
+			if (length === 0) download(clonedCanvas);
 
 			for (var i = 0; i < length; i++) {
 				const obj = originalObjects[i];
 				obj.clone((clone_obj)=> {
-					if (clone_obj.type != 'rect') {
+					if (clone_obj.type == 'CustomTextbox') {
 						clone_obj.textCanvas = {addPlugin: ()=>{}};
 						clone_obj.plugins.forEach(plugin=> {
 			                clone_obj.addPlugin(window[plugin.name], plugin.id);
@@ -100,7 +103,7 @@ class Canvas {
 	}
 
 	load(json) {
-		const img = JSON.parse(json).backgroundImage;
+		const img = JSON.parse(json).overlayImage;
 		this.fabric.setHeight(img.height * img.scaleX);
 		this.fabric.loadFromJSON(json, ()=> {this.fabric.renderAll.bind(this.fabric); window.can_pass = true;}, (o, object)=> {
 			if (object.type === 'rect') {
