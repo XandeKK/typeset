@@ -36,7 +36,6 @@ function skew(textbox, id=null) {
         };
 
         const skewXInput = HtmlElementFactory.createInput('number', null, textbox[id + '-skewX'], eventSkewX.bind(this));
-        skewXInput.step = '0.1';
 
         skewXDiv.appendChild(skewXLabel);
         skewXDiv.appendChild(skewXInput);
@@ -52,7 +51,6 @@ function skew(textbox, id=null) {
         };
 
         const skewYInput = HtmlElementFactory.createInput('number', null, textbox[id + '-skewY'], eventSkewY.bind(this));
-        skewYInput.step = '0.1';
 
         skewYDiv.appendChild(skewYLabel);
         skewYDiv.appendChild(skewYInput);
