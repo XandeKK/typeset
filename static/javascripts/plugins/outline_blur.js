@@ -130,7 +130,7 @@ function outline_blur(textbox, id=null) {
         delete textbox[id + '-fill'];
         delete textbox[id + '-blur'];
 
-        let index_plugin = textbox.plugins.findIndex(obj => obj.properties[0].includes(id));
+        let index_plugin = textbox.plugins.findIndex(obj => obj.properties[0]?.includes(id));
         textbox.plugins.splice(index_plugin, index_plugin + 1);
 
         textbox.dirty = true;

@@ -138,7 +138,7 @@ function light(textbox, id=null) {
         delete textbox[id + '-radius'];
         delete textbox[id + '-fill'];
 
-        let index_plugin = textbox.plugins.findIndex(obj => obj.properties[0].includes(id));
+        let index_plugin = textbox.plugins.findIndex(obj => obj.properties[0]?.includes(id));
         textbox.plugins.splice(index_plugin, index_plugin + 1);
 
         textbox.dirty = true;

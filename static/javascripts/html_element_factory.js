@@ -51,6 +51,30 @@ class HtmlElementFactory {
 
     return radioDiv;
   }
+
+  static createCheckbox(classNameDiv=null, classNameInput=null, textContent=null, checked=false, event) {
+    const checkboxDiv = HtmlElementFactory.createDiv(classNameDiv ? classNameDiv : 'flex gap-1 items-center select-none mb-2 justify-between');
+
+    const div = HtmlElementFactory.createDiv('flex gap-2');
+
+    const input = document.createElement('input');
+    input.id = uuidv4();
+    input.type = 'checkbox';
+    input.className =  classNameInput ? classNameInput : 'w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-full focus:ring-blue-500';
+    input.checked = checked;
+
+    input.addEventListener('input', event);
+
+    const label = HtmlElementFactory.createLabel(textContent, null);
+    label.htmlFor = input.id;
+    
+    div.appendChild(input);
+    div.appendChild(label);
+
+    checkboxDiv.appendChild(div);
+
+    return checkboxDiv;
+  }
   
   static createSelect(className=null, options=[], event=()=>{}) {
     const select = document.createElement('select');

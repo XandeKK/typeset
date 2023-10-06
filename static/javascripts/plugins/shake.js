@@ -1,12 +1,13 @@
-function shadow(textbox, id=null) {
+function shake(textbox, id=null) {
     let loaded = true;
     if (!id) {
         loaded = false;
         id = uuidv4();
-        textbox[id + '-size'] = 3;
-        textbox[id + '-fill'] = '#ffffff';
+        textbox[id + '-two_direction'] = false;
         textbox[id + '-x'] = 0;
         textbox[id + '-y'] = 0;
+        textbox[id + '-quatity'] = 1;
+        textbox[id + '-intensity'] = 1;
     }
 
     textbox.hooks.beforeRender[id] = {
@@ -39,16 +40,27 @@ function shadow(textbox, id=null) {
                 for (let j = 0; j < line.length; j++) {
                     const letter = line[j];
 
-                    arg.ctx.miterLimit = 2;
-                    arg.ctx.lineJoin = 'circle';
-                    arg.ctx.strokeStyle = obj[arg.id + '-fill'];
-                    arg.ctx.lineWidth = obj[arg.id + '-size'];
-                    arg.ctx.strokeText(letter, x + obj[arg.id + '-x'], y + obj[arg.id + '-y']);
 
+                    for (var q = obj[id + '-quatity']; q > 0; q--) {
+                        const alpha = q / obj[id + '-quatity'];
+
+                        let _x = x + obj[arg.id + '-x'] * obj[arg.id + '-intensity'] / q;
+                        let _y = y + obj[arg.id + '-y'] * obj[arg.id + '-intensity'] / q;
+                        arg.ctx.globalAlpha = 0.2 * alpha;
+
+                        arg.ctx.fillText(letter, _x, _y);
+                        if (textbox[id + '-two_direction']) {
+                            _x = x - obj[arg.id + '-x'] * obj[arg.id + '-intensity'] / q;
+                            _y = y - obj[arg.id + '-y'] * obj[arg.id + '-intensity'] / q;
+
+                            arg.ctx.fillText(letter, _x, _y);
+                        }
+                    }
                     x += arg.ctx.measureText(letter).width;
                 }
                 y += lineHeight;
             }
+            arg.ctx.globalAlpha = 1;
         }
     };
 
@@ -56,28 +68,30 @@ function shadow(textbox, id=null) {
         id: id,
         function: function (obj, arg) {
             const json = {}
-            json[id + '-size'] = obj[id + '-size'];
-            json[id + '-fill'] = obj[id + '-fill'];
+            json[id + '-two_direction'] = obj[id + '-two_direction'];
             json[id + '-x'] = obj[id + '-x'];
             json[id + '-y'] = obj[id + '-y'];
+            json[id + '-quatity'] = obj[id + '-quatity'];
+            json[id + '-intensity'] = obj[id + '-quatity'];
             return json;
         }
     }
 
-    textbox.hooks.setScale[id] = {
-        id: id,
-        function: function (obj, arg) {
-            obj[id + '-size'] /= arg.scale;
-            obj[id + '-x'] /= arg.scale;
-            obj[id + '-y'] /= arg.scale;
-        }
-    }
-
     function frontend(parent) {
-        parent.className = 'grid grid-cols-2 p-2';
+        parent.className = 'p-2 grid grid-cols-2 gap-2';
+
+        const eventTwoDirection = (evt)=> {
+            textbox[id + '-two_direction'] = evt.target.checked;
+            textbox.dirty = true;
+            textbox.canvas.renderAll();
+        };
+
+        const twoDirectionCheckbox = HtmlElementFactory.createCheckbox(null, null, 'twoDirection', textbox[id + '-two_direction'], eventTwoDirection.bind(this));
+
+        parent.appendChild(twoDirectionCheckbox);
 
         const xDiv = HtmlElementFactory.createDiv();
-        const xLabel = HtmlElementFactory.createLabel('x');
+        const xLabel = HtmlElementFactory.createLabel('X');
 
         const eventX = (evt)=> {
             textbox[id + '-x'] = Number(evt.target.value);
@@ -86,28 +100,31 @@ function shadow(textbox, id=null) {
         };
 
         const xInput = HtmlElementFactory.createInput('number', null, textbox[id + '-x'], eventX.bind(this));
+        xInput.step = '0.1';
+        xInput.min = -1;
+        xInput.max = 1;
 
         xDiv.appendChild(xLabel);
         xDiv.appendChild(xInput);
         parent.appendChild(xDiv);
 
-        const sizeDiv = HtmlElementFactory.createDiv();
-        const sizeLabel = HtmlElementFactory.createLabel('size');
+        const quatityDiv = HtmlElementFactory.createDiv();
+        const quatityLabel = HtmlElementFactory.createLabel('Quatity');
 
-        const eventSize = (evt)=> {
-            textbox[id + '-size'] = Number(evt.target.value);
+        const eventquatity = (evt)=> {
+            textbox[id + '-quatity'] = Number(evt.target.value);
             textbox.dirty = true;
             textbox.canvas.renderAll();
         };
 
-        const sizeInput = HtmlElementFactory.createInput('number', null, textbox[id + '-size'], eventSize.bind(this));
+        const quatityInput = HtmlElementFactory.createInput('number', null, textbox[id + '-quatity'], eventquatity.bind(this));
 
-        sizeDiv.appendChild(sizeLabel);
-        sizeDiv.appendChild(sizeInput);
-        parent.appendChild(sizeDiv);
+        quatityDiv.appendChild(quatityLabel);
+        quatityDiv.appendChild(quatityInput);
+        parent.appendChild(quatityDiv);
 
         const yDiv = HtmlElementFactory.createDiv();
-        const yLabel = HtmlElementFactory.createLabel('y');
+        const yLabel = HtmlElementFactory.createLabel('Y');
 
         const eventY = (evt)=> {
             textbox[id + '-y'] = Number(evt.target.value);
@@ -116,35 +133,39 @@ function shadow(textbox, id=null) {
         };
 
         const yInput = HtmlElementFactory.createInput('number', null, textbox[id + '-y'], eventY.bind(this));
+        yInput.step = '0.1';
+        yInput.min = -1;
+        yInput.max = 1;
 
         yDiv.appendChild(yLabel);
         yDiv.appendChild(yInput);
         parent.appendChild(yDiv);
 
-        const fillDiv = HtmlElementFactory.createDiv();
-        const fillLabel = HtmlElementFactory.createLabel('fill');
+        const intensityDiv = HtmlElementFactory.createDiv();
+        const intensityLabel = HtmlElementFactory.createLabel('Intensity');
 
-        const eventFill = (evt)=> {
-            textbox[id + '-fill'] = evt.target.value;
+        const eventIntensity = (evt)=> {
+            textbox[id + '-intensity'] = Number(evt.target.value);
             textbox.dirty = true;
             textbox.canvas.renderAll();
         };
 
-        const fillInput = HtmlElementFactory.createInput('color', 'bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-10', textbox[id + '-fill'], eventFill.bind(this));
+        const intensityInput = HtmlElementFactory.createInput('number', null, textbox[id + '-intensity'], eventIntensity.bind(this));
 
-        fillDiv.appendChild(fillLabel);
-        fillDiv.appendChild(fillInput);
-        parent.appendChild(fillDiv);
+        intensityDiv.appendChild(intensityLabel);
+        intensityDiv.appendChild(intensityInput);
+        parent.appendChild(intensityDiv);
     }
 
     function _delete() {
         delete textbox.hooks.beforeRender[id];
         delete textbox.hooks.toObject[id];
         delete textbox.hooks.setScale[id];
-        delete textbox[id + '-size'];
-        delete textbox[id + '-fill'];
+        delete textbox[id + '-two_direction'];
         delete textbox[id + '-x'];
         delete textbox[id + '-y'];
+        delete textbox[id + '-quatity'];
+        delete textbox[id + '-intesity'];
 
         let index_plugin = textbox.plugins.findIndex(obj => obj.properties[0]?.includes(id));
         textbox.plugins.splice(index_plugin, index_plugin + 1);
@@ -153,8 +174,8 @@ function shadow(textbox, id=null) {
         textbox.canvas.renderAll();
     }
 
-    textbox.textCanvas.addPlugin('shadow', {id: id, frontend: frontend, delete: _delete});
+    textbox.textCanvas.addPlugin('shake', {id: id, frontend: frontend, delete: _delete});
     if (!loaded) {
-        return {id: id, name: 'shadow', properties: [id + '-size', id + '-fill']};
+        return {id: id, name: 'shake', properties: [id + '-two_direction', id + '-x', id + '-y', id + '-quatity', id + '-intensity']};
     }
 }
