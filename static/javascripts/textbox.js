@@ -97,6 +97,8 @@ fabric.CustomTextbox = new fabric.util.createClass(fabric.Object, {
 
         this.executeHooks('beforeRender', {ctx});
 
+        let index = 0;
+
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i];
             const lineWidth = ctx.measureText(line).width;
@@ -112,13 +114,14 @@ fabric.CustomTextbox = new fabric.util.createClass(fabric.Object, {
             for (let j = 0; j < line.length; j++) {
                 const letter = line[j];
 
-                this.executeHooks('beforeLetterRender', {ctx, letter, x, y});
+                this.executeHooks('beforeLetterRender', {ctx, index, letter, x, y});
 
                 ctx.fillText(letter, x, y);
 
-                this.executeHooks('afterLetterRender', {ctx, letter, x, y});
+                this.executeHooks('afterLetterRender', {ctx, index, letter, x, y});
 
                 x += ctx.measureText(letter).width;
+                index++;
             }
             y += lineHeight;
         }

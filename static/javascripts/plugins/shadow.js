@@ -5,6 +5,7 @@ function shadow(textbox, id=null) {
         id = uuidv4();
         textbox[id + '-size'] = 3;
         textbox[id + '-fill'] = '#ffffff';
+        textbox[id + '-pattern'] = null;
         textbox[id + '-x'] = 0;
         textbox[id + '-y'] = 0;
     }
@@ -41,7 +42,11 @@ function shadow(textbox, id=null) {
 
                     arg.ctx.miterLimit = 2;
                     arg.ctx.lineJoin = 'circle';
-                    arg.ctx.strokeStyle = obj[arg.id + '-fill'];
+                    if (obj[arg.id + '-pattern']) {
+                        arg.ctx.strokeStyle = arg.ctx.createPattern(obj[arg.id + '-pattern'], 'repeat');
+                    } else {
+                        arg.ctx.strokeStyle = obj[arg.id + '-fill'];
+                    }
                     arg.ctx.lineWidth = obj[arg.id + '-size'];
                     arg.ctx.strokeText(letter, x + obj[arg.id + '-x'], y + obj[arg.id + '-y']);
 
@@ -58,6 +63,7 @@ function shadow(textbox, id=null) {
             const json = {}
             json[id + '-size'] = obj[id + '-size'];
             json[id + '-fill'] = obj[id + '-fill'];
+            json[id + '-pattern'] = obj[id + '-pattern'];
             json[id + '-x'] = obj[id + '-x'];
             json[id + '-y'] = obj[id + '-y'];
             return json;
@@ -135,6 +141,31 @@ function shadow(textbox, id=null) {
         fillDiv.appendChild(fillLabel);
         fillDiv.appendChild(fillInput);
         parent.appendChild(fillDiv);
+
+        const patternDiv = HtmlElementFactory.createDiv();
+        const patternLabel = HtmlElementFactory.createLabel('Pattern');
+
+        const eventPattern = (evt)=> {
+            let file = evt.target.files[0];
+            let reader = new FileReader();
+
+            reader.onload = (event)=> {
+                let img = new Image();
+                img.onload = ()=> {
+                    textbox[id + '-pattern'] = img;
+                    textbox.dirty = true;
+                    textbox.canvas.renderAll();
+                }
+                img.src = event.target.result;
+            }
+            reader.readAsDataURL(file);
+        };
+
+        const patternInput = HtmlElementFactory.createInput('file', 'w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none', '', eventPattern.bind(this));
+
+        patternDiv.appendChild(patternLabel);
+        patternDiv.appendChild(patternInput);
+        parent.appendChild(patternDiv);
     }
 
     function _delete() {
@@ -155,6 +186,6 @@ function shadow(textbox, id=null) {
 
     textbox.textCanvas.addPlugin('shadow', {id: id, frontend: frontend, delete: _delete});
     if (!loaded) {
-        return {id: id, name: 'shadow', properties: [id + '-size', id + '-fill']};
+        return {id: id, name: 'shadow', properties: [id + '-size', id + '-fill' ,textbox[id + '-x'], textbox[id + '-y'], textbox[id + '-pattern']]};
     }
 }

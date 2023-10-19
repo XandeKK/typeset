@@ -187,7 +187,7 @@ class Handler {
 						text: "",
 						textAlign: 'center',
 						fontSize: window.type_style === 'manga' ? 18 : 25,
-						font: window.type_style === 'manga' ? 'CCWildWords-Regular' : 'CCMightyMouth-Regular',
+						font: window.type_style === 'manga' ? 'CCWildWords-Regular' : 'CCVictorySpeech-Regular',
 						left: box.x1 * this.fabric.overlayImage.get('scaleX'),
 						top: box.y1 * this.fabric.overlayImage.get('scaleX'),
 						width: (box.x2 - box.x1) * this.fabric.overlayImage.get('scaleX'),

@@ -57,13 +57,13 @@ This method adjusts the scale of the `CustomTextbox`.
 
 The `CustomTextbox` class includes several hooks that allow custom plugins to execute actions at specific points during the rendering process. Each hook provides a different context and may receive specific arguments that provide information about the current state of the rendering. Here are the hooks along with their respective arguments:
 
-### `beforeRender(ctx)`
+### `beforeRender(arg={ctx})`
 
 - `ctx` (object): The rendering context. This object represents the canvas context and can be used to set rendering properties or draw on the canvas before the text rendering begins.
 
 This hook is executed right before the text rendering process starts. It's useful for performing actions that should occur just before the text is drawn.
 
-### `beforeLetterRender({ctx, letter, x, y})`
+### `beforeLetterRender(arg={ctx, index, letter, x, y})`
 
 - `ctx` (object): The rendering context.
 - `letter` (string): The current letter being rendered.
@@ -72,7 +72,7 @@ This hook is executed right before the text rendering process starts. It's usefu
 
 This hook is executed before rendering each individual letter of the text. It allows you to perform actions specific to each letter, such as applying custom styling or effects.
 
-### `afterLetterRender({ctx, letter, x, y})`
+### `afterLetterRender(arg={ctx, index, letter, x, y})`
 
 - `ctx` (object): The rendering context.
 - `letter` (string): The current letter that has just been rendered.
@@ -81,7 +81,7 @@ This hook is executed before rendering each individual letter of the text. It al
 
 This hook is executed after rendering each individual letter of the text. You can use it to perform actions that should occur after rendering each letter, such as post-processing or additional effects.
 
-### `afterRender({ctx})`
+### `afterRender(arg={ctx})`
 
 - `ctx` (object): The rendering context.
 

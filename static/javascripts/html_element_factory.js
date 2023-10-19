@@ -6,6 +6,17 @@ class HtmlElementFactory {
     return label;
   }
 
+  static createTextarea(className=null, value='', event=()=>{}) {
+    const textarea = document.createElement('textarea');
+    textarea.className =  className ? className : 'border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-1 w-full mb-1 resize-none';
+    textarea.textContent = value;
+    textarea.rows = "4";
+
+    textarea.addEventListener('input', event);
+
+    return textarea;
+  }
+
   static createInput(type='text', className=null, value='', event=()=>{}) {
     const input = document.createElement('input');
     input.type = type;
